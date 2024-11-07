@@ -277,7 +277,7 @@ if verification_code_5 == "" then
     b.background=nil
     c.background=nil
     d.background=nil
-    e.background=ordinary_status_dra
+    e.background=input_status_dra
     return true
   end
   a.background=nil
