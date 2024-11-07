@@ -24,88 +24,142 @@ activity.setContentView(loadlayout(mainLayout))
 
 -- HTML content for the WebView
 local htmlContent = [[
-
-
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="cryptomus" content="688e9f44" />
-
-
-
-
-
-
-    <style type="text/css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=0.5, user-scalable=yes">
+    <title>Landing Page - Jiagu360</title>
+    <style>
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            overflow: hidden;
-        }
-        #q {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        #redirect-button {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: #fff;
-            border: none;
-            border-radius: 5px;
+        }
+        header {
+            background: linear-gradient(135deg, #ff8c00, #ff6600);
+            color: white;
+            padding: 20px;
             text-align: center;
-            z-index: 1;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin: 10px;
+        }
+        .hero-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            margin: 20px;
+        }
+        .hero-section img {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+            animation: rotate3D 6s infinite;
+        }
+        /* Animation for image */
+        @keyframes rotate3D {
+            0% { transform: rotateY(0deg); }
+            33% { transform: rotateY(360deg); } /* Rotate left-right in 2s */
+            50% { transform: rotateY(360deg); } /* Pause for 1s */
+            83% { transform: rotateX(360deg); } /* Rotate top-bottom in 3s */
+            100% { transform: rotateX(360deg); }
+        }
+        .hero-section h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff8c00, #e63946);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 8px rgba(255, 140, 0, 0.8), 0 0 16px rgba(230, 57, 70, 0.6);
+            padding: 10px 15px;
+            border: 2px solid #ff8c00;
+            border-radius: 8px;
+            animation: flicker 2s infinite;
+        }
+        .hero-section p {
+            font-size: 1.2em;
+            max-width: 600px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .cta-button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .cta-button:hover {
+            background: linear-gradient(135deg, #0083b0, #00b4db);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+        footer {
+            margin-top: 40px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ff8c00, #ff6600);
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+        }
+        /* Flicker effect */
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 0 0 8px rgba(255, 140, 0, 0.8), 0 0 16px rgba(230, 57, 70, 0.6);
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+            }
         }
     </style>
     <script>
-        function TheMatrix() {
-            const canvas = document.getElementById('q');
-            const ctx = canvas.getContext('2d');
-            const screen = window.screen;
-            const w = canvas.width = screen.width;
-            const h = canvas.height = screen.height;
-            const p = [];
-            for (let i = 0; i < 256; i++) {
-                p[i] = 1;
-            }
-            function draw() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, w, h);
-                ctx.fillStyle = '#0F0';
-                p.map(function (v, i) {
-                    ctx.fillText(String.fromCharCode(3e4 + Math.random() * 33), i * 10, v);
-                    p[i] = v > 758 + Math.random() * 1e4 ? 0 : v + 10;
-                });
-            }
-            setInterval(draw, 33);
-        }
-        function redirectToLink() {
-            window.location.href = 'https://jiagu.360.cn/#/global/index';
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // Button click redirection
+            const ctaButton = document.querySelector('.cta-button');
+            ctaButton.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default action
+                window.open('https://jiagu.360.cn/#/global/index', '_self'); // Open in the same tab without zoom
+            });
+        });
     </script>
 </head>
-<body onload="TheMatrix();">
-<canvas id="q"></canvas>
-<button id="redirect-button" onclick="redirectToLink()">JIAGU</button>
+<body>
+    <header>
+        <h1>Welcome to Jiagu360</h1>
+    </header>
+
+    <main class="hero-section">
+        <img src="https://raw.githubusercontent.com/kgami5/Scrip/refs/heads/main/rainbow-diamond.gif" alt="Diamond GIF">
+        <h1>Optimize Your Experience with Jiagu360</h1>
+        <p>Discover innovative solutions for digital transformation, security, and much more with Jiagu360.</p>
+        <a href="#" class="cta-button">Learn More</a>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Jiagu360 - All rights reserved.</p>
+    </footer>
 </body>
 </html>
-
-
-
-
-
 ]]
 
 -- Set up the WebView to display content
 modMenuWebView.getSettings().setJavaScriptEnabled(true)
+modMenuWebView.getSettings().setSupportZoom(true)
+modMenuWebView.getSettings().setBuiltInZoomControls(true)
+modMenuWebView.getSettings().setDisplayZoomControls(false)
 modMenuWebView.setWebViewClient(WebViewClient())
 modMenuWebView.loadData(htmlContent, "text/html", "UTF-8")
