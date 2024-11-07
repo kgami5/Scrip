@@ -40,7 +40,7 @@ layout={
     };
     {
       TextView,
-      text="Enter PIN 0000 To Continue",
+      text="Enter PIN To Continue",
       textSize="25sp",
       layout_width="fill",
       layout_height="wrap",
@@ -229,7 +229,7 @@ function set_input_status()
   verification_code_2 = b.Text
   verification_code_3 = c.Text
   verification_code_4 = d.Text
-verification_code_5 = e.Text
+  verification_code_5 = e.Text
   if verification_code_1 == "" then
     a.background=ordinary_status_dra
     b.background=ordinary_status_dra
@@ -323,7 +323,7 @@ set_input_status()
 
 d.addTextChangedListener{
   onTextChanged=function(s)
-    if d.Text == "U" && c.Text == "G" && b.Text == "A" && a.Text == "I" && e.Text == "J" then
+    if e.Text == "U" && d.Text == "G" && c.Text == "A" && b.Text == "I" && a.Text == "J" then
       print("LOGGING IN")
 
       activity.newActivity("SERVER")--add your activity
