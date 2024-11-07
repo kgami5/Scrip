@@ -6,7 +6,7 @@ import "android.view.*"
 import "android.webkit.*"
 
 -- Create a new layout to host the WebView
-local mainLayout = {
+Layout = {
   LinearLayout;
   orientation = "vertical";
   layout_width = "match_parent";
