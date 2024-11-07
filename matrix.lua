@@ -5,10 +5,10 @@ import "android.widget.*"
 import "android.view.*"
 import "android.webkit.*"
 
-activity.setContentView(loadlayout(layout))
+
 
 -- Create a new layout to host the WebView
-layout = {
+local layout = {
   LinearLayout;
   orientation = "vertical";
   layout_width = "match_parent";
@@ -22,7 +22,7 @@ layout = {
 }
 
 -- Set up the activity's content view
-
+activity.setContentView(loadlayout(layout))
 
 -- HTML content for the WebView
 local htmlContent = [[
