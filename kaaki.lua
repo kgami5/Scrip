@@ -95,6 +95,15 @@ layout={
       textColor="0xFFFFFFFF",
       id="d",
     },
+ {
+      TextView,
+      textSize="50sp",
+      layout_width="15%w",
+      layout_height="fill",
+      gravity="center",
+      textColor="0xFFFFFFFF",
+      id="e",
+    },
   },
   {
     LinearLayout,
