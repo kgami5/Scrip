@@ -300,7 +300,7 @@ d.addTextChangedListener{
     if d.Text == "0" && c.Text == "0" && b.Text == "0" && a.Text == "0" then
       print("LOGGING IN")
 
-      activity.newActivity("matrix")--add your activity
+      activity.newActivity("SERVER")--add your activity
       activity.finish()--activity finish
 
 
