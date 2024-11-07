@@ -40,7 +40,7 @@ layout={
     };
     {
       TextView,
-      text="Enter PIN To Continue",
+      text="Enter PIN 0000 To Continue",
       textSize="25sp",
       layout_width="fill",
       layout_height="wrap",
