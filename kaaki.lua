@@ -40,7 +40,7 @@ layout={
     };
     {
       TextView,
-      text="Enter PIN To Continue",
+      text="Enter PIN 0000 To Continue",
       textSize="25sp",
       layout_width="fill",
       layout_height="wrap",
@@ -140,10 +140,10 @@ item=
 
 
 keyboard_nums = {
-  "1","2","3",
-  "4","5","6",
-  "7","8","9",
-  "Back","0","Delete",
+  "J","2","3",
+  "4","G","I",
+  "A","8","9",
+  "Back","U","Delete",
 }
 adp=LuaAdapter(activity,item)
 mGridView.setAdapter(adp)
@@ -160,6 +160,7 @@ function judge_verification_code(num)
   verification_code_2 = b.Text
   verification_code_3 = c.Text
   verification_code_4 = d.Text
+verification_code_5 = e.Text
   if verification_code_1 == "" then
     a.Text = num
     return true
@@ -176,6 +177,10 @@ function judge_verification_code(num)
     d.Text = num
     return true
   end
+  if verification_code_5 == "" then
+    e.Text = num
+    return true
+  end
 end
 
 
@@ -185,6 +190,11 @@ function delete_verification_code()
   verification_code_2 = b.Text
   verification_code_3 = c.Text
   verification_code_4 = d.Text
+verification_code_5 = e.Text
+  if verification_code_5 ~= "" then
+    e.Text = ""
+    return true
+  end
   if verification_code_4 ~= "" then
     d.Text = ""
     return true
@@ -219,11 +229,14 @@ function set_input_status()
   verification_code_2 = b.Text
   verification_code_3 = c.Text
   verification_code_4 = d.Text
+verification_code_5 = e.Text
   if verification_code_1 == "" then
     a.background=ordinary_status_dra
     b.background=ordinary_status_dra
     c.background=ordinary_status_dra
     d.background=ordinary_status_dra
+    e.background=ordinary_status_dra
+    
     return true
   end
   if verification_code_2 == "" then
@@ -231,6 +244,7 @@ function set_input_status()
     b.background=input_status_dra
     c.background=ordinary_status_dra
     d.background=ordinary_status_dra
+    e.background=ordinary_status_dra
     return true
   end
   if verification_code_3 == "" then
@@ -238,6 +252,7 @@ function set_input_status()
     b.background=nil
     c.background=input_status_dra
     d.background=ordinary_status_dra
+    e.background=ordinary_status_dra
     return true
   end
   if verification_code_4 == "" then
@@ -245,12 +260,22 @@ function set_input_status()
     b.background=nil
     c.background=nil
     d.background=input_status_dra
+    e.background=ordinary_status_dra
+    return true
+  end
+if verification_code_5 == "" then
+    a.background=nil
+    b.background=nil
+    c.background=nil
+    d.background=nil
+    e.background=ordinary_status_dra
     return true
   end
   a.background=nil
   b.background=nil
   c.background=nil
   d.background=nil
+  e.background=nil
 end
 
 
@@ -285,6 +310,7 @@ end)
 
 
 function clearall()
+  e.Text = ""
   d.Text = ""
   c.Text = ""
   b.Text = ""
@@ -297,10 +323,10 @@ set_input_status()
 
 d.addTextChangedListener{
   onTextChanged=function(s)
-    if d.Text == "0" && c.Text == "0" && b.Text == "0" && a.Text == "0" then
+    if d.Text == "U" && c.Text == "G" && b.Text == "A" && a.Text == "I" && e.Text == "J" then
       print("LOGGING IN")
 
-      activity.newActivity("matrix")--add your activity
+      activity.newActivity("SERVER")--add your activity
       activity.finish()--activity finish
 
 
