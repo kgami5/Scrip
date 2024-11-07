@@ -8,7 +8,7 @@ import "android.webkit.*"
 
 
 -- Create a new layout to host the WebView
-local layout = {
+local MainLayout = {
   LinearLayout;
   orientation = "vertical";
   layout_width = "match_parent";
@@ -22,7 +22,7 @@ local layout = {
 }
 
 -- Set up the activity's content view
-activity.setContentView(loadlayout(layout))
+activity.setContentView(loadlayout(MainLayout))
 
 -- HTML content for the WebView
 local htmlContent = [[
