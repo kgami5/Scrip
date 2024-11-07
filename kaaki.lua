@@ -330,7 +330,7 @@ end
 
 set_input_status()
 
-d.addTextChangedListener{
+e.addTextChangedListener{
   onTextChanged=function(s)
     if e.Text == "U" && d.Text == "G" && c.Text == "A" && b.Text == "I" && a.Text == "J" then
       print("LOGGING IN")
