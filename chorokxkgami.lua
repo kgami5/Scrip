@@ -170,7 +170,7 @@ function loginkey.onClick()
   key1="chorokxkgami"
   key3="TEST"
   if pass.Text==key or pass.Text==key1 or pass.Text==key3 then
-    activity.newActivity("chorokxkgami")--add your activity
+    activity.newActivity("server")--add your activity
     activity.finish()--activity finish
    else
     print("pass wrong")
