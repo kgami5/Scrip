@@ -31,14 +31,14 @@ local htmlContent = [[
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rotating Icon with Clickable Button</title>
+    <title>3D Rotating Icon with Shiny Button</title>
     <style>
         /* General reset and styling */
         body, html {
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background: transparent;
+            background: rgba(0, 0, 0, 0.8);
             overflow-x: hidden;
             color: #fff;
             text-align: center;
@@ -53,41 +53,93 @@ local htmlContent = [[
             width: 150px;
             height: 150px;
             border-radius: 50%;
-            border: 5px solid #fff;
+            border: 5px solid rgba(255, 255, 255, 0); /* Transparent border */
             background: url('https://raw.githubusercontent.com/kgami5/Scrip/refs/heads/main/rainbow-diamond.gif') no-repeat center center / cover;
-            animation: rotateUpDown 2s infinite ease-in-out;
-            z-index: 1; /* Ensure it stays behind the button */
+            animation: rotateUpDown 3s infinite cubic-bezier(0.25, 1, 0.5, 1);
+            transform-origin: center;
+            perspective: 1000px;
+            z-index: 1;
         }
 
         @keyframes rotateUpDown {
             0% {
-                transform: rotateX(0deg);
+                transform: rotateX(0deg) rotateY(0deg);
             }
             50% {
-                transform: rotateX(180deg);
+                transform: rotateX(180deg) rotateY(180deg);
             }
             100% {
-                transform: rotateX(0deg);
+                transform: rotateX(0deg) rotateY(360deg);
             }
         }
 
         .start-button {
             margin-top: 20px;
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 15px 35px;
+            font-size: 20px;
             color: #fff;
-            background: #ff5722;
+            background: linear-gradient(135deg, #ff5722, #e64a19);
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
-            transition: background 0.3s ease-in-out;
-            z-index: 2; /* Ensure it is above the rotating image */
-            position: relative; /* Makes z-index effective */
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: rotate(45deg);
+            transition: all 0.5s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .start-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: skewX(-45deg);
+            z-index: 1;
+            transition: all 0.5s ease-in-out;
         }
 
         .start-button:hover {
-            background: #e64a19;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .start-button:hover::before {
+            opacity: 0.6;
+            transform: rotate(45deg) scale(1.2);
+        }
+
+        .start-button::after {
+            animation: shine 2.5s infinite linear;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -150%;
+            }
+            50% {
+                left: 100%;
+            }
+            100% {
+                left: 150%;
+            }
         }
     </style>
 </head>
@@ -95,10 +147,38 @@ local htmlContent = [[
     <!-- Non-clickable rotating central image -->
     <div class="central-image"></div>
 
-    <!-- Clickable START button -->
-    <a href="https://boost3000.fr" target="_blank" class="start-button">START</a>
+    <!-- Clickable START button with countdown and redirect -->
+    <button class="start-button" id="startButton" onclick="startCountdown()">START</button>
+
+    <script>
+        function startCountdown() {
+            const button = document.getElementById('startButton');
+            let countdownValue = 3;
+            button.textContent = countdownValue; // Set initial countdown value
+
+            const interval = setInterval(() => {
+                countdownValue--;
+                if (countdownValue > 0) {
+                    button.textContent = countdownValue; // Update button text
+                } else {
+                    button.textContent = 'Started!';
+                    clearInterval(interval);
+
+                    // Redirect to the specified URL after 1 second delay
+                    setTimeout(() => {
+                        window.location.href = "https://boost3000.fr";
+                    }, 1000);
+                }
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
@@ -615,203 +695,6 @@ local htmlContent = [[
 
 
 
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-    <title>Dynamic Toast Notification with Progress Bar</title> 
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-        .Xv_toast {
-            position: fixed;
-            bottom: 190px;
-            right: 20px;
-            border-radius: 12px;
-            background: white;
-            padding: 10px 20px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-            border-left: 6px solid #F3BA2F;
-            overflow: hidden;
-            transform: translateX(calc(100% + 30px));
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
-            z-index: 1000;
-        }
-
-        .Xv_toast.Xv_active {
-            transform: translateX(0%);
-        }
-
-        .Xv_toast .Xv_toast-content {
-            display: flex;
-            align-items: center;
-        }
-
-        .Xv_toast-content .Xv_icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 35px;
-            width: 35px;
-            background-color: #F3BA2F;
-            color: #fff;
-            font-size: 15px;
-            border-radius: 50%;
-        }
-
-        .Xv_toast-content .Xv_message {
-            display: flex;
-            flex-direction: column;
-            margin: 0 20px;
-        }
-
-        .Xv_message .Xv_text {
-            font-size: 15px;
-            font-weight: 400;
-            color:#333 ;
-        }
-
-        .Xv_message .Xv_text.Xv_text-1 {
-            font-weight: 200;
-            font-size: 13px;
-            color: #1e1e1e;
-        }
-
-        .Xv_message .Xv_text.Xv_text-2 {
-            font-weight: bold;
-            font-size: 15px;
-            color: #1e1e1e;
-        }
-
-        .Xv_message .Xv_text.Xv_text-3 {
-            font-weight: 200;
-            font-size: 13px;
-            color: #1e1e1e;
-        }
-
-        .Xv_toast .Xv_close {
-            position: absolute;
-            top: 5px;
-            color: #F3BA2F;
-            right: 10px;
-            padding: 5px;
-            cursor: pointer;
-            opacity: 0.7;
-        }
-
-        .Xv_toast .Xv_close:hover {
-            opacity: 1;
-        }
-
-        .Xv_toast .Xv_progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            width: 100%;
-            background: #ddd;
-        }
-
-        .Xv_toast .Xv_progress:before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            height: 100%;
-            width: 100%;
-            background-color: #F3BA2F;
-        }
-
-        .Xv_progress.Xv_active:before {
-            animation: Xv_progress 5s linear forwards;
-        }
-
-        @keyframes Xv_progress {
-            100% {
-                right: 100%;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="Xv_toast">
-        <div class="Xv_toast-content">
-            <i class="ri-shopping-cart-line Xv_icon"></i>
-            <div class="Xv_message">
-                <span class="Xv_text Xv_text-1">Placeholder message</span>
-                <span class="Xv_text Xv_text-2">Item</span>
-                <span class="Xv_text Xv_text-3">Time ago</span>
-            </div>
-        </div>
-        <i class="ri-close-line Xv_close"></i>
-        <div class="Xv_progress"></div>
-    </div>
-
-    <script>
-        const toast = document.querySelector(".Xv_toast"),
-              closeIcon = document.querySelector(".Xv_close"),
-              progress = document.querySelector(".Xv_progress");
-
-        const items = ['Youtube', 'TikTok', 'Instagram', 'TikTok', 'Telegram', 'TikTok'];
-        const times = ['3 minutes ago', '40 minutes ago', '1 hour ago', '3 hours ago', '45 minutes ago', '30 minutes ago'];
-        const countries = ['United States', 'India', 'Brazil', 'Nigeria', 'Germany', 'China', 'Japan', 'Russia', 'Canada', 'United Kingdom', 'France', 'Italy', 'Australia', 'Spain', 'Mexico', 'Ukraine', 'Kenya', 'Lebanon', 'Tanzania', 'Pakistan', 'Uganda'];
-
-        function showToast() {
-            const isSignup = Math.random() >= 0.5; // 50% chance for signup toast
-
-            if (isSignup) {
-                // Signup message
-                document.querySelector('.Xv_icon').className = 'ri-user-line Xv_icon';
-                document.querySelector('.Xv_text.Xv_text-1').textContent = "New user just signed up";
-                document.querySelector('.Xv_text.Xv_text-2').textContent = countries[Math.floor(Math.random() * countries.length)];
-                document.querySelector('.Xv_text.Xv_text-3').textContent = times[Math.floor(Math.random() * times.length)];
-            } else {
-                // Shopping cart message
-                document.querySelector('.Xv_icon').className = 'ri-shopping-cart-line Xv_icon';
-                document.querySelector('.Xv_text.Xv_text-1').textContent = "Someone new just bought";
-                document.querySelector('.Xv_text.Xv_text-2').textContent = items[Math.floor(Math.random() * items.length)];
-                document.querySelector('.Xv_text.Xv_text-3').textContent = times[Math.floor(Math.random() * times.length)];
-            }
-
-            // Show the toast
-            toast.classList.add("Xv_active");
-            progress.classList.add("Xv_active");
-
-            // Hide the toast after a timeout
-            timer1 = setTimeout(() => {
-                toast.classList.remove("Xv_active");
-            }, 5000);
-
-            timer2 = setTimeout(() => {
-                progress.classList.remove("Xv_active");
-            }, 5300);
-        }
-
-        closeIcon.addEventListener("click", () => {
-            toast.classList.remove("Xv_active");
-            clearTimeout(timer1);
-            clearTimeout(timer2);
-            setTimeout(() => {
-                progress.classList.remove("Xv_active");
-            }, 300);
-        });
-
-        // Show toast on page load
-        window.onload = function() {
-            setTimeout(() => showToast(), 500);  // Slight delay for first notification
-            // Repeat every 7 seconds
-            setInterval(showToast, 14000);
-        };
-    </script>
-</body>
-</html>
 
 
 
