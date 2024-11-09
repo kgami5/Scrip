@@ -133,7 +133,7 @@ import "android.view.*"
 --import "layout"
 
 activity.setTheme(R.AndLua1)
-activity.setTitle("@KGAMI5")
+activity.setTitle("Chorok X KGAMI")
 activity.setContentView(loadlayout(layout))
 activity.overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
 if Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP then
