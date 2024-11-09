@@ -12,10 +12,10 @@ import "android.content.Context"
 import "android.view.animation.*"
 import "AndLua"
 import "http"
-import "layout"
+--import "layout"
 
 activity.setTheme(R.AndLua1)
-activity.setContentView(loadlayout(layout))
+--activity.setContentView(loadlayout(layout))
 activity.actionBar.hide()
 activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS).setStatusBarColor(0xFF000000);
 
