@@ -15,7 +15,7 @@ activity.setContentView(loadlayout(layout))
 activity.setRequestedOrientation(1)
 
 --webviewid.loadUrl("https://emupedia.net/beta/emuos/")
-webviewid.loadUrl("https://boostland.fr/ia/ai")
+webviewid.loadUrl("https://obscurgpt.com")
 
 --webviewid.loadUrl("https://mytoolstown.com/youtube")
 webviewid.getTitle()
