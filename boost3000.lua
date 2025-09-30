@@ -3,7 +3,7 @@ import "android.app.*"
 import "android.os.*"
 import "android.widget.*"
 import "android.view.*"
---import "layout"
+import "layout"
 
 --activity.setTheme(R.Theme_Blue)
 --activity.setTitle("MyApp2")
