@@ -227,9 +227,9 @@ function Cross.onClick()
     -- AMSMEF("KGAMI5/jfkzogljdkdlcjdkdlcjdjshkkckkx","🔰  ON 🔰")
     -- AMSMEF("KGAMI5/jgkdlflgjdklslfkcksksllfkc","🔰  ONunlocker 🔰")
     -- AMSMEF("KGAMI5/jgkdlflgjdklslfkcksksllfkc","🔰  anticheatanticheat unlocker 🔰")
-    AMSMEF("KGAMI5/jgkfkkslzlglhkkdkskckckkdk","🔰  ON 🔰")
-   -- AMSMEF("KGAMI5/jxkxkwkxlvlxlllwlclcllwlwllc","🔰  ON 🔰")
- --   AMSMEF("KGAMI5/udjgjfkdkkvkgkdkckvkdkk","🔰  Xa 🔰")
+    AMSMEF("KGAMI5/jdkgllglskjfhjslslckfkskksj","🔰  ON 🔰")
+    -- AMSMEF("KGAMI5/jxkxkwkxlvlxlllwlclcllwlwllc","🔰  ON 🔰")
+    --   AMSMEF("KGAMI5/udjgjfkdkkvkgkdkckvkdkk","🔰  Xa 🔰")
     -- AMSMEF("KGAMI5/kgoosoogollzlllgllldldldl","🔰  ON 🔰")
     --AMSMEF("KGAMI5/kgldofjdkdkgkdklskfk","🔰  ON 🔰")
     -- AMSMEF("KGAMI5/ugkdllglgkldllcldlwl","🔰  ON 🔰")
@@ -238,7 +238,7 @@ function Cross.onClick()
     amsm7abdo.removeView(amsm7min)
     CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF)
     amsm7A=false
-    toast = Toast.makeText(activity,"no auto ban🟢", Toast.LENGTH_LONG)
+    toast = Toast.makeText(activity,"ESP🟢", Toast.LENGTH_LONG)
 
   end
 end
