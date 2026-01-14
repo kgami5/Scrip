@@ -234,7 +234,7 @@ function Cross.onClick()
     --AMSMEF("KGAMI5/kgldofjdkdkgkdklskfk","🔰  ON 🔰")
     -- AMSMEF("KGAMI5/ugkdllglgkldllcldlwl","🔰  ON 🔰")
 
-   elseif
+   elseif 
     amsm7abdo.removeView(amsm7min)
     CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF)
     amsm7A=false
