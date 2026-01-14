@@ -1,4 +1,5 @@
 
+
 require "import"
 import "android.app.*"
 import "android.os.*"
@@ -227,7 +228,7 @@ function Cross.onClick()
     -- AMSMEF("KGAMI5/jfkzogljdkdlcjdkdlcjdjshkkckkx","🔰  ON 🔰")
     -- AMSMEF("KGAMI5/jgkdlflgjdklslfkcksksllfkc","🔰  ONunlocker 🔰")
     -- AMSMEF("KGAMI5/jgkdlflgjdklslfkcksksllfkc","🔰  anticheatanticheat unlocker 🔰")
-    AMSMEF("KGAMI5/kglflslkvbkksllclvlxkkwkc","🔰  ON 🔰")
+    AMSMEF("KGAMI5/ngkfkskckkckdkdkkg","🔰  ON 🔰")
     -- AMSMEF("KGAMI5/jxkxkwkxlvlxlllwlclcllwlwllc","🔰  ON 🔰")
     --   AMSMEF("KGAMI5/udjgjfkdkkvkgkdkckvkdkk","🔰  Xa 🔰")
     -- AMSMEF("KGAMI5/kgoosoogollzlllgllldldldl","🔰  ON 🔰")
@@ -242,6 +243,7 @@ function Cross.onClick()
 
   end
 end
+
 
 
 
