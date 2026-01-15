@@ -186,6 +186,30 @@ function AMSMEF(fileName)
       pcall(function() Runtime.getRuntime().exec(path) end)
   end
 end
+import "com.androlua.util.RootUtil"
+
+function amsm7A
+  if RootUtil.haveRoot() == true then
+    kmn = activity.getLuaDir(A0_24)
+    os.execute("su -c chmod 777 " .. kmn)
+    Runtime.getRuntime().exec("su -c " .. kmn)
+   else
+    kmn = activity.getLuaDir(A0_24)
+    os.execute("chmod 777 " .. kmn)
+    Runtime.getRuntime().exec(" " .. kmn)
+  end
+end
+
+--chmod 0760 "dir"777
+
+
+
+function exec(cmd)
+  local p=io.popen(string.format('%s',cmd))
+  local s=p:read("*a")
+  p:close()
+  return s
+end
 
 -- ===========================
 -- 7. CLIC BOUTON
