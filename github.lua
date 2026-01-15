@@ -191,37 +191,38 @@ import "com.androlua.util.RootUtil"
 
 -- Fonction robuste pour lancer le binaire C4droid
 function AMSMEF(fileName)
-  -- 1. Récupérer le chemin absolu du fichier
   local path = activity.getLuaDir(fileName)
   
-  -- 2. Vérifier si le fichier existe
+  -- 1. Vérification du fichier
   local f = io.open(path, "r")
   if f == nil then
-    print("❌ ERREUR: Fichier introuvable: " .. fileName)
-    Toast.makeText(activity, "Fichier binaire manquant !", Toast.LENGTH_LONG).show()
+    Toast.makeText(activity, "❌ Fichier binaire introuvable !", Toast.LENGTH_LONG).show()
     return
   else
     f:close()
   end
 
-  -- 3. Exécution
-  if RootUtil.haveRoot() then
-    -- On construit une grosse commande pour s'assurer que tout se passe bien
-    -- a. chmod 777 : donne la permission d'exécution
-    -- b. nohup ... & : lance en arrière-plan (pour ne pas figer l'appli)
-    -- c. > /dev/null : ignore les printf pour éviter le crash du buffer
-    
-    local cmd = "su -c 'chmod 777 \"" .. path .. "\" && nohup \"" .. path .. "\" > /dev/null 2>&1 &'"
-    
+  -- 2. On donne les permissions (On essaie les deux méthodes : normal et root)
+  os.execute("chmod 777 '" .. path .. "'")
+  os.execute("su -c chmod 777 '" .. path .. "'")
+
+  -- 3. Exécution FORCÉE (On ignore RootUtil)
+  -- On lance la commande via "su -c" directement.
+  -- Si l'espace virtuel a le root activé, ça passera.
+  local cmd = "su -c 'nohup \"" .. path .. "\" > /dev/null 2>&1 &'"
+  
+  -- On tente aussi une exécution normale au cas où le binaire n'aurait pas besoin de su pour se lancer (rare pour un injecteur, mais possible pour tester)
+  -- Mais pour /proc/mem, le 'su' est obligatoire.
+  
+  try
     Runtime.getRuntime().exec(cmd)
-    
-    print("✅ Commande envoyée au système (Root)")
-    Toast.makeText(activity, "Injecteur lancé en arrière-plan 🚀", Toast.LENGTH_SHORT).show()
-  else
-    print("❌ Root non détecté. Impossible d'injecter (accès mémoire refusé).")
-    Toast.makeText(activity, "Besoin du ROOT !", Toast.LENGTH_LONG).show()
+    Toast.makeText(activity, "💉 Injection lancée (Mode Force)", Toast.LENGTH_SHORT).show()
+    print("Commande envoyée : " .. cmd)
+  catch(e)
+    Toast.makeText(activity, "Erreur d'exécution : " .. e, Toast.LENGTH_LONG).show()
   end
 end
+    
 
 -- Ton bouton Cross optimisé
 amsm7A = false
