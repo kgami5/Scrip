@@ -1,9 +1,132 @@
-  require "import"
+require "import"
 import "android.app.*"
 import "android.os.*"
 import "android.widget.*"
 import "android.view.*"
+import "AndLua"
+import "http"
+import "android.view.View"
+import "android.content.Context"
+import "android.content.Intent"
+import "android.provider.Settings"
+import "android.net.Uri"
+import "android.content.pm.PackageManager"
+import "android.graphics.Typeface"
+import "android.widget.FrameLayout"
+import 'android.net.Uri'
+import "android.graphics.Paint"
+import "android.graphics.Typeface"
+import "android.graphics.Paint"
+import "android.content.Context"
+import "android.content.Intent"
+import "android.graphics.*"
+import "android.content.Context"
+import "android.content.Intent"
+import "android.content.pm.PackageManager"
+import "android.net.Uri"
+import "android.provider.Settings"
+import "android.graphics.Typeface"
+import "layout"
+import "min"
 
+activity.setContentView(loadlayout(layout))
+
+
+
+import "android.content.Context"
+
+do
+amsm7abdo=activity.getSystemService(Context.WINDOW_SERVICE) --获取窗口管理器
+HasFocus=false --是否有焦点
+amsmParam =WindowManager.LayoutParams() --对象
+amsmParam.type =WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY --设置悬浮窗方式
+import "android.graphics.PixelFormat" --导入
+amsmParam.format =PixelFormat.RGBA_8888
+amsmParam.flags=WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+amsmParam.gravity = Gravity.CENTER
+amsmParam.x = 0
+amsmParam.y = 0
+amsmParam.width =WindowManager.LayoutParams.WRAP_CONTENT
+amsmParam.height =WindowManager.LayoutParams.WRAP_CONTENT
+if Build.VERSION.SDK_INT >= Build.VERSION_CODES.M&&!Settings.canDrawOverlays(this) then
+  print("There are no floating window permissions, please open the permissions")
+  intent=Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+  activity.startActivityForResult(intent, 100)
+  os.exit()
+ else
+  amsm7min=loadlayout(amsmlay)
+end
+end
+
+function CircleButton(view,InsideColor,radiu,InsideColor1)
+  import "android.graphics.drawable.GradientDrawable"
+  drawable = GradientDrawable()
+  drawable.setShape(GradientDrawable.RECTANGLE)
+  drawable.setCornerRadii({radiu, radiu, radiu, radiu, radiu, radiu, radiu, radiu})
+  drawable.setColor(InsideColor)
+  drawable.setStroke(5, InsideColor1)
+  view.setBackgroundDrawable(drawable)
+end
+
+function CircleButtonA(view,InsideColor,radiu,InsideColor1)
+  import "android.graphics.drawable.GradientDrawable"
+  drawable = GradientDrawable()
+  drawable.setShape(GradientDrawable.RECTANGLE)
+  drawable.setCornerRadii({radiu, radiu, radiu, radiu, radiu, radiu, radiu, radiu})
+  drawable.setColor(InsideColor)
+  drawable.setStroke(9, InsideColor1)
+  view.setBackgroundDrawable(drawable)
+end
+CircleButtonA(mLinearLayout1,0xFFBD0000,200,0xFFFFFFFF)
+CircleButtonA(mLinearLayout2,0xFFFF0000,100,0xFFFFFFFF)
+CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF)
+
+
+
+
+
+
+
+
+Date = "20260120"
+date = os.date("%Y%m%d")
+if date >= Date then
+  dialog=AlertDialog.Builder(this)
+  .setTitle("⚠️𝐈𝐍𝐉𝐄𝐂𝐓𝐎𝐑 𝐄𝐗𝐏𝐈𝐑𝐄𝐃⚠️")
+  .setCancelable(false)
+  .setMessage("UPDATE IS REQUIRED \n Telegram: @KGAMI5\n chat me if need update\n Wait for it....!!!")
+  .setPositiveButton("EXIT",{onClick=function(v)
+      os.exit()
+    end})
+  .setNeutralButton("CONTACT",{onClick = function(v)
+      url = "https://t.me/KGAMI5"
+      activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+      os.exit()
+    end})
+  .show()
+
+
+  import "android.text.SpannableString"
+  import "android.text.style.ForegroundColorSpan"
+  import "android.text.Spannable"
+  texttitle = SpannableString("⚠️𝐈𝐍𝐉𝐄𝐂𝐓𝐎𝐑 𝐄𝐗𝐏𝐈𝐑𝐄𝐃⚠️")
+  texttitle.setSpan(ForegroundColorSpan(0xFFFF0000),0,#texttitle,Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+  dialog.setTitle(texttitle)
+  return
+end
+
+
+
+
+
+
+
+require "import"
+import "android.app.*"
+import "android.os.*"
+import "android.widget.*"
+import "android.view.*"
+import "layout"
 import "android.content.Context"
 import "android.graphics.PixelFormat"
 import "android.provider.Settings"
@@ -13,7 +136,7 @@ import "android.graphics.drawable.GradientDrawable" -- Ajouté pour être sûr
 
 activity.setTitle("")
 activity.setTheme(R.AndLua1)
-
+activity.setContentView(loadlayout(layout))
 
 -- Configuration Barre de statut
 import "android.graphics.drawable.ColorDrawable"
@@ -26,64 +149,6 @@ activity.ActionBar.setBackgroundDrawable(ColorDrawable(0xFF000000))
 -- ⚠️ PARTIE AJOUTÉE : DÉFINITION DU MENU FLOTTANT
 -- C'est ce qui manquait et causait le crash
 -- ==================================================
-amsmlay = {
-  LinearLayout,
-  orientation="vertical",
-  layout_width="wrap_content",
-  layout_height="wrap_content",
-  id="mLinearLayout1", -- Le conteneur principal
-  {
-    TextView, -- Le bouton pour activer/désactiver
-    id="Cross",
-    text="☠️", -- Icône ou texte du bouton
-    textSize="25sp",
-    textColor="#FFFFFF",
-    gravity="center",
-    layout_width="60dp",
-    layout_height="60dp",
-  }
-}
--- ==================================================
-
-
--- Gestion Fenêtre Flottante
-do
-  amsm7abdo=activity.getSystemService(Context.WINDOW_SERVICE)
-  amsmParam =WindowManager.LayoutParams()
-  amsmParam.type =WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-  amsmParam.format =PixelFormat.RGBA_8888
-  amsmParam.flags=WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-  amsmParam.gravity = Gravity.CENTER
-  amsmParam.width =WindowManager.LayoutParams.WRAP_CONTENT
-  amsmParam.height =WindowManager.LayoutParams.WRAP_CONTENT
-  
-  -- Vérification permission Overlay
-  if Build.VERSION.SDK_INT >= 23 and not Settings.canDrawOverlays(activity) then
-    print("Permission Overlay requise")
-    intent=Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-    activity.startActivityForResult(intent, 100)
-    Toast.makeText(activity, "Active la permission et relance l'app", Toast.LENGTH_LONG).show()
-  else
-    -- C'est ici que ça plantait avant, maintenant amsmlay existe !
-    amsm7min=loadlayout(amsmlay)
-  end
-end
-
--- Styles Boutons
-function CircleButtonA(view,InsideColor,radiu,InsideColor1)
-  import "android.graphics.drawable.GradientDrawable"
-  drawable = GradientDrawable()
-  drawable.setShape(GradientDrawable.RECTANGLE)
-  drawable.setCornerRadii({radiu, radiu, radiu, radiu, radiu, radiu, radiu, radiu})
-  drawable.setColor(InsideColor)
-  drawable.setStroke(9, InsideColor1)
-  view.setBackgroundDrawable(drawable)
-end
-
--- Appliquer les styles (Si les IDs existent)
-if mLinearLayout1 then CircleButtonA(mLinearLayout1,0xFFBD0000,200,0xFFFFFFFF) end
-if Cross then CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF) end
-
 
 -- ==========================================
 -- FONCTION D'INJECTION (FORCE MODE VM)
@@ -162,3 +227,4 @@ function Cross.onClick()
     Toast.makeText(activity, "Arrêt... 🛑", Toast.LENGTH_SHORT).show()
   end
 end
+
