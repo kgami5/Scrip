@@ -1,9 +1,9 @@
-require "import"
+  require "import"
 import "android.app.*"
 import "android.os.*"
 import "android.widget.*"
 import "android.view.*"
-import "layout"
+
 import "android.content.Context"
 import "android.graphics.PixelFormat"
 import "android.provider.Settings"
@@ -13,7 +13,7 @@ import "android.graphics.drawable.GradientDrawable" -- Ajouté pour être sûr
 
 activity.setTitle("")
 activity.setTheme(R.AndLua1)
-activity.setContentView(loadlayout(layout))
+
 
 -- Configuration Barre de statut
 import "android.graphics.drawable.ColorDrawable"
