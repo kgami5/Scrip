@@ -9,8 +9,8 @@ import "android.graphics.PixelFormat"
 import "android.provider.Settings"
 import "android.content.Intent"
 import "android.net.Uri"
+import "android.graphics.drawable.GradientDrawable" -- Ajouté pour être sûr
 
-import "min"
 activity.setTitle("")
 activity.setTheme(R.AndLua1)
 activity.setContentView(loadlayout(layout))
@@ -21,6 +21,29 @@ if Build.VERSION.SDK_INT >= 21 then
   activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS).setStatusBarColor(0xFF000000);
 end
 activity.ActionBar.setBackgroundDrawable(ColorDrawable(0xFF000000))
+
+-- ==================================================
+-- ⚠️ PARTIE AJOUTÉE : DÉFINITION DU MENU FLOTTANT
+-- C'est ce qui manquait et causait le crash
+-- ==================================================
+amsmlay = {
+  LinearLayout,
+  orientation="vertical",
+  layout_width="wrap_content",
+  layout_height="wrap_content",
+  id="mLinearLayout1", -- Le conteneur principal
+  {
+    TextView, -- Le bouton pour activer/désactiver
+    id="Cross",
+    text="☠️", -- Icône ou texte du bouton
+    textSize="25sp",
+    textColor="#FFFFFF",
+    gravity="center",
+    layout_width="60dp",
+    layout_height="60dp",
+  }
+}
+-- ==================================================
 
 
 -- Gestion Fenêtre Flottante
@@ -41,6 +64,7 @@ do
     activity.startActivityForResult(intent, 100)
     Toast.makeText(activity, "Active la permission et relance l'app", Toast.LENGTH_LONG).show()
   else
+    -- C'est ici que ça plantait avant, maintenant amsmlay existe !
     amsm7min=loadlayout(amsmlay)
   end
 end
@@ -56,14 +80,13 @@ function CircleButtonA(view,InsideColor,radiu,InsideColor1)
   view.setBackgroundDrawable(drawable)
 end
 
--- Appliquer les styles
-CircleButtonA(mLinearLayout1,0xFFBD0000,200,0xFFFFFFFF)
-CircleButtonA(mLinearLayout2,0xFFFF0000,100,0xFFFFFFFF)
-CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF)
+-- Appliquer les styles (Si les IDs existent)
+if mLinearLayout1 then CircleButtonA(mLinearLayout1,0xFFBD0000,200,0xFFFFFFFF) end
+if Cross then CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF) end
 
 
 -- ==========================================
--- FONCTION D'INJECTION (CORRIGÉE POUR VM)
+-- FONCTION D'INJECTION (FORCE MODE VM)
 -- ==========================================
 function AMSMEF(fileName)
   local path = activity.getLuaDir(fileName)
@@ -78,13 +101,10 @@ function AMSMEF(fileName)
   end
 
   -- 2. Donner les permissions (Force brute)
-  -- On le fait via os.execute pour être sûr
   os.execute("chmod 777 '" .. path .. "'")
   os.execute("su -c chmod 777 '" .. path .. "'")
 
-  -- 3. Préparation commande avec LOG pour débogage
-  -- On utilise sh pour lancer su pour éviter les soucis de path
-  -- On redirige les erreurs vers un fichier temp pour voir pourquoi ça plante
+  -- 3. Exécution avec LOG (Debug)
   local logFile = activity.getLuaDir("error_log.txt")
   local cmd = "su -c 'nohup \"" .. path .. "\" > /dev/null 2> \"" .. logFile .. "\" &'"
   
@@ -93,7 +113,7 @@ function AMSMEF(fileName)
   -- 4. Exécution
   local p = Runtime.getRuntime().exec(cmd)
   
-  -- Petit délai pour vérifier si ça a crashé tout de suite
+  -- Petit délai pour vérifier erreur immédiate
   Thread.sleep(500)
   
   -- Lecture du log d'erreur
@@ -102,17 +122,14 @@ function AMSMEF(fileName)
     local content = errFile:read("*a")
     errFile:close()
     if content and #content > 5 then
-       print("⚠️ ERREUR DÉTECTÉE : " .. content)
        if string.find(content, "Exec format error") then
            dialog=AlertDialog.Builder(this)
           .setTitle("ERREUR ARCHITECTURE")
-          .setMessage("Ton binaire est compilé en 64 bits mais ta VM est en 32 bits.\n\nSolution: Utilise une VM 64 bits (ex: F1VM 64bit) ou compile en 32 bits.")
+          .setMessage("Problème 32bits vs 64bits.\nTon espace virtuel ne peut pas lancer ce fichier.")
           .show()
        else
-           Toast.makeText(activity, "Erreur: " .. content, Toast.LENGTH_LONG).show()
+           Toast.makeText(activity, "Erreur Logs: " .. content, Toast.LENGTH_LONG).show()
        end
-    else
-       print("✅ Injection semblée OK (Pas d'erreur logguée)")
     end
   end
 end
@@ -138,11 +155,10 @@ function Cross.onClick()
     CircleButtonA(Cross, 0xFFBD0000, 200, 0xFFFFFFFF) -- Rouge
     amsm7A = false
     
-    -- Tuer le processus (Force brute, pas de check root)
+    -- Tuer le processus
     Runtime.getRuntime().exec("su -c pkill -f ckxkdkkskkhgkkdkskkv")
     Runtime.getRuntime().exec("pkill -f ckxkdkkskkhgkkdkskkv")
     
     Toast.makeText(activity, "Arrêt... 🛑", Toast.LENGTH_SHORT).show()
   end
 end
-    
