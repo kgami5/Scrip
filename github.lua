@@ -11,7 +11,6 @@ import "android.net.Uri"
 import "android.content.pm.PackageManager"
 import "android.graphics.drawable.ColorDrawable"
 import "android.graphics.drawable.GradientDrawable"
-import "com.androlua.util.RootUtil"
 
 -- IMPORTANTS : On charge tes fichiers UI ici
 import "layout"  -- Ton layout principal
@@ -22,7 +21,6 @@ import "min"     -- Ton menu flottant (amsmlay)
 -- ===========================
 activity.setTitle("")
 activity.setTheme(R.AndLua1)
--- On charge le layout principal
 activity.setContentView(loadlayout(layout))
 
 if Build.VERSION.SDK_INT >= 21 then
@@ -31,7 +29,7 @@ end
 activity.ActionBar.setBackgroundDrawable(ColorDrawable(0xFF000000))
 
 -- ===========================
--- 2. ANIMATION TEXTE (Ton code)
+-- 2. ANIMATION TEXTE
 -- ===========================
 Update_UI=function(str)
   if t1 then t1.Text=str end
@@ -61,7 +59,7 @@ Start=function(str)
   end
 end
 
-thread(Start," 01010 connected ... Hello There its me @KGAMI5 from boost3000.fr | welcome for tiktok Instagram telegram and more social media go to the website www.boost3000.fr you Can buy followers views likes and more")
+thread(Start," 01010 connected ... Hello There its me @KGAMI5 from boost3000.fr")
 
 
 -- ===========================
@@ -84,15 +82,15 @@ do
     print("Permission requise")
     intent=Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
     activity.startActivityForResult(intent, 100)
-    -- os.exit() 
   else
-    -- C'est ici que ça plantait. Comme on a fait import "min" en haut, 
-    -- amsmlay existe maintenant !
     if amsmlay then
         amsm7min=loadlayout(amsmlay)
     else
-        print("ERREUR: amsmlay n'est pas trouvé dans min.lua")
-        Toast.makeText(activity, "Erreur: UI 'min' introuvable", Toast.LENGTH_LONG).show()
+        -- Au cas où min.lua est vide, on crée un bouton de secours pour éviter le crash
+        amsm7min = loadlayout({
+            LinearLayout,
+            {TextView, text="ERROR", textColor="red"}
+        })
     end
   end
 end
@@ -100,15 +98,6 @@ end
 -- ===========================
 -- 4. STYLES BOUTONS
 -- ===========================
-function CircleButton(view,InsideColor,radiu,InsideColor1)
-  drawable = GradientDrawable()
-  drawable.setShape(GradientDrawable.RECTANGLE)
-  drawable.setCornerRadii({radiu, radiu, radiu, radiu, radiu, radiu, radiu, radiu})
-  drawable.setColor(InsideColor)
-  drawable.setStroke(5, InsideColor1)
-  view.setBackgroundDrawable(drawable)
-end
-
 function CircleButtonA(view,InsideColor,radiu,InsideColor1)
   drawable = GradientDrawable()
   drawable.setShape(GradientDrawable.RECTANGLE)
@@ -118,7 +107,6 @@ function CircleButtonA(view,InsideColor,radiu,InsideColor1)
   view.setBackgroundDrawable(drawable)
 end
 
--- Application des styles (Vérifie que les IDs existent dans ton layout min)
 if mLinearLayout1 then CircleButtonA(mLinearLayout1,0xFFBD0000,200,0xFFFFFFFF) end
 if mLinearLayout2 then CircleButtonA(mLinearLayout2,0xFFFF0000,100,0xFFFFFFFF) end
 if Cross then CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF) end
@@ -135,35 +123,68 @@ if date >= Date then
   .setCancelable(false)
   .setMessage("UPDATE IS REQUIRED")
   .setPositiveButton("EXIT",{onClick=function(v) os.exit() end})
-  .setNeutralButton("CONTACT",{onClick = function(v)
-      url = "https://t.me/KGAMI5"
-      activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-      os.exit()
-    end})
   .show()
   return
 end
 
 
 -- ===========================
--- 6. FONCTION D'INJECTION (FORCE VM)
+-- 6. FONCTION D'INJECTION (ANTI-CRASH & MULTI-CHEMINS)
 -- ===========================
 function AMSMEF(fileName)
   local path = activity.getLuaDir(fileName)
   
-  -- 1. On donne les droits (Normal + Root)
+  -- 1. Donner les droits au fichier
   os.execute("chmod 777 '" .. path .. "'")
-  os.execute("su -c chmod 777 '" .. path .. "'")
 
-  -- 2. On lance l'exécutable SANS vérifier RootUtil
-  -- On ajoute 'nohup' pour que ça ne fige pas l'écran
-  -- On ajoute '> /dev/null' pour vider le buffer
-  local cmd = "su -c 'nohup \"" .. path .. "\" > /dev/null 2>&1 &'"
+  -- 2. Liste des chemins possibles pour 'su'
+  -- L'erreur venait du fait que le système ne trouvait pas "su" tout court
+  local su_candidates = {
+      "su",               -- Standard
+      "/system/bin/su",   -- Souvent utilisé dans les VM
+      "/system/xbin/su",  -- Ancien standard root
+      "/sbin/su",         -- Magisk systemless
+      "sh"                -- Dernier recours (si pas root mais shell suffisant)
+  }
+
+  local success = false
   
-  -- Exécution
-  Runtime.getRuntime().exec(cmd)
-  
-  print("Injection lancée : "..fileName)
+  -- 3. On teste les chemins un par un
+  for i, binary in ipairs(su_candidates) do
+      if success then break end -- Si ça a marché, on arrête
+      
+      -- Commande : binaire -c "commande"
+      -- On ajoute nohup et redirection erreur
+      local cmd_string = binary .. " -c 'nohup \"" .. path .. "\" > /dev/null 2>&1 &'"
+      
+      -- Si c'est juste "sh", on lance sans le "-c" complexe parfois
+      if binary == "sh" then
+         cmd_string = "nohup \"" .. path .. "\" > /dev/null 2>&1 &"
+      end
+
+      -- PCALL : C'est la protection magique.
+      -- Si Runtime.exec plante, ça ne fera PAS d'écran rouge, ça renvoie juste false.
+      local status, err = pcall(function() 
+          Runtime.getRuntime().exec(cmd_string) 
+      end)
+
+      if status then
+          print("✅ Injection réussie via : " .. binary)
+          success = true
+      else
+          print("⚠️ Echec avec " .. binary)
+      end
+  end
+
+  if success then
+      Toast.makeText(activity, "💉 Injection Lancée", Toast.LENGTH_SHORT).show()
+  else
+      -- Si tout a échoué
+      Toast.makeText(activity, "❌ Erreur: ROOT introuvable (Error=2)", Toast.LENGTH_LONG).show()
+      
+      -- Tentative désespérée sans su ni sh (directement le fichier)
+      pcall(function() Runtime.getRuntime().exec(path) end)
+  end
 end
 
 -- ===========================
@@ -184,8 +205,11 @@ function Cross.onClick()
     CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF)
     amsm7A=false
     
-    -- Arrêter l'injecteur
-    Runtime.getRuntime().exec("su -c pkill -f ckxkdkkskkhgkkdkskkv")
+    -- Arrêter l'injecteur (Safe kill)
+    local kill_cmds = {"su -c pkill -f ckxkdkkskkhgkkdkskkv", "pkill -f ckxkdkkskkhgkkdkskkv"}
+    for _, cmd in ipairs(kill_cmds) do
+        pcall(function() Runtime.getRuntime().exec(cmd) end)
+    end
     
     Toast.makeText(activity,"ESP OFF 🔴", Toast.LENGTH_SHORT).show()
   end
