@@ -10,6 +10,7 @@ import "android.provider.Settings"
 import "android.content.Intent"
 import "android.net.Uri"
 
+import "min"
 activity.setTitle("")
 activity.setTheme(R.AndLua1)
 activity.setContentView(loadlayout(layout))
