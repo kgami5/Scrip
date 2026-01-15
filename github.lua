@@ -186,63 +186,70 @@ end
   end
 end]]--
 
+
 import "com.androlua.util.RootUtil"
 
-function AMSMEF(A0_24)
-  if RootUtil.haveRoot() == true then
-    kmn = activity.getLuaDir(A0_24)
-    os.execute("su -c chmod 777 " .. kmn)
-    Runtime.getRuntime().exec("su -c " .. kmn)
-   else
-    kmn = activity.getLuaDir(A0_24)
-    os.execute("chmod 777 " .. kmn)
-    Runtime.getRuntime().exec(" " .. kmn)
+-- Fonction robuste pour lancer le binaire C4droid
+function AMSMEF(fileName)
+  -- 1. Récupérer le chemin absolu du fichier
+  local path = activity.getLuaDir(fileName)
+  
+  -- 2. Vérifier si le fichier existe
+  local f = io.open(path, "r")
+  if f == nil then
+    print("❌ ERREUR: Fichier introuvable: " .. fileName)
+    Toast.makeText(activity, "Fichier binaire manquant !", Toast.LENGTH_LONG).show()
+    return
+  else
+    f:close()
+  end
+
+  -- 3. Exécution
+  if RootUtil.haveRoot() then
+    -- On construit une grosse commande pour s'assurer que tout se passe bien
+    -- a. chmod 777 : donne la permission d'exécution
+    -- b. nohup ... & : lance en arrière-plan (pour ne pas figer l'appli)
+    -- c. > /dev/null : ignore les printf pour éviter le crash du buffer
+    
+    local cmd = "su -c 'chmod 777 \"" .. path .. "\" && nohup \"" .. path .. "\" > /dev/null 2>&1 &'"
+    
+    Runtime.getRuntime().exec(cmd)
+    
+    print("✅ Commande envoyée au système (Root)")
+    Toast.makeText(activity, "Injecteur lancé en arrière-plan 🚀", Toast.LENGTH_SHORT).show()
+  else
+    print("❌ Root non détecté. Impossible d'injecter (accès mémoire refusé).")
+    Toast.makeText(activity, "Besoin du ROOT !", Toast.LENGTH_LONG).show()
   end
 end
 
---chmod 0760 "dir"777
-
-
-
-function exec(cmd)
-  local p=io.popen(string.format('%s',cmd))
-  local s=p:read("*a")
-  p:close()
-  return s
-end
-
-
-
-
-
-
-
-
-amsm7A=false
+-- Ton bouton Cross optimisé
+amsm7A = false
 function Cross.onClick()
-  if (amsm7A==false) then
-    amsm7abdo.addView(amsm7min,amsmParam)
-    CircleButtonA(Cross,0xFF009F00,200,0xFFFFFFFF)
-    amsm7A=true
-    -- AMSMEF("KGAMI5/jfkzogljdkdlcjdkdlcjdjshkkckkx","🔰  ON 🔰")
-    -- AMSMEF("KGAMI5/jgkdlflgjdklslfkcksksllfkc","🔰  ONunlocker 🔰")
-    -- AMSMEF("KGAMI5/jgkdlflgjdklslfkcksksllfkc","🔰  anticheatanticheat unlocker 🔰")
-    AMSMEF("KGAMI5/ckxkdkkskkhgkkdkskkv","🔰  ON 🔰")
-    -- AMSMEF("KGAMI5/jxkxkwkxlvlxlllwlclcllwlwllc","🔰  ON 🔰")
-    --   AMSMEF("KGAMI5/udjgjfkdkkvkgkdkckvkdkk","🔰  Xa 🔰")
-    -- AMSMEF("KGAMI5/kgoosoogollzlllgllldldldl","🔰  ON 🔰")
-    --AMSMEF("KGAMI5/kgldofjdkdkgkdklskfk","🔰  ON 🔰")
-    -- AMSMEF("KGAMI5/ugkdllglgkldllcldlwl","🔰  ON 🔰")
+  if (amsm7A == false) then
+    -- ON : Afficher le menu et lancer l'injecteur
+    amsm7abdo.addView(amsm7min, amsmParam)
+    CircleButtonA(Cross, 0xFF009F00, 200, 0xFFFFFFFF) -- Vert
+    amsm7A = true
+    
+    -- Lancer le binaire qui est dans le dossier KGAMI5
+    AMSMEF("KGAMI5/ckxkdkkskkhgkkdkskkv") 
 
-   elseif 
+  else
+    -- OFF : Cacher le menu et Tuer l'injecteur
     amsm7abdo.removeView(amsm7min)
-    CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF)
-    amsm7A=false
-    toast = Toast.makeText(activity,"ESP🟢", Toast.LENGTH_LONG)
-
+    CircleButtonA(Cross, 0xFFBD0000, 200, 0xFFFFFFFF) -- Rouge
+    amsm7A = false
+    
+    -- Optionnel : Tuer le processus pour arrêter le hack proprement
+    if RootUtil.haveRoot() then
+       -- On tue le processus par son nom
+       Runtime.getRuntime().exec("su -c pkill -f ckxkdkkskkhgkkdkskkv")
+    end
+    
+    Toast.makeText(activity, "Arrêt... 🛑", Toast.LENGTH_SHORT).show()
   end
 end
-
 
 
 
