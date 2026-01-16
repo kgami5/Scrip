@@ -12,8 +12,8 @@ import "android.net.Uri"
 import "android.content.Context"
 
 -- ================= CONFIG & INSTALLATION =================
-local BIN_SERVER = "server"
-local BIN_CRYPT = "crypt"
+local BIN_SERVER = "KGAMI5/kgoslgjsjzbriguetdudh"
+local BIN_CRYPT = "KGAMI5/gkglkdkdkkvkkdkdkc"
 local PATH_SERVER = activity.getFilesDir().getPath().."/"..BIN_SERVER
 local PATH_CRYPT = activity.getFilesDir().getPath().."/"..BIN_CRYPT
 
