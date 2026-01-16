@@ -29,21 +29,30 @@ end
 installBinaries()
 
 -- ================= UTILITAIRES =================
+-- ================= UTILITAIRES =================
 function getIP()
-  try
-    local interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
-    for i = 0, interfaces.size() - 1 do
-      local intf = interfaces.get(i)
-      local addrs = Collections.list(intf.getInetAddresses())
-      for j = 0, addrs.size() - 1 do
-        local addr = addrs.get(j)
-        if not addr.isLoopbackAddress() and addr.getHostAddress():find(":") == nil then
-          return addr.getHostAddress()
+  -- On utilise pcall (protected call) au lieu de try/catch pour éviter les erreurs
+  local status, result = pcall(function()
+      local interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
+      for i = 0, interfaces.size() - 1 do
+        local intf = interfaces.get(i)
+        local addrs = Collections.list(intf.getInetAddresses())
+        for j = 0, addrs.size() - 1 do
+          local addr = addrs.get(j)
+          -- On cherche une IP qui n'est pas locale (127.0.0.1) et pas IPv6 (:)
+          if not addr.isLoopbackAddress() and addr.getHostAddress():find(":") == nil then
+            return addr.getHostAddress()
+          end
         end
       end
-    end
-  catch(e) end
-  return "OFFLINE"
+      return nil
+  end)
+
+  if status and result then
+    return result
+  else
+    return "OFFLINE" -- En cas d'erreur ou si pas trouvé
+  end
 end
 
 -- ================= INTERFACE PRINCIPALE =================
