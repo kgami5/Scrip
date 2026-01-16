@@ -3,238 +3,301 @@ import "android.app.*"
 import "android.os.*"
 import "android.widget.*"
 import "android.view.*"
-import "android.graphics.*"
-import "android.content.Context"
-import "android.content.Intent"
+import "android.graphics.PixelFormat"
+import "android.graphics.Typeface"
+import "java.net.NetworkInterface"
+import "java.util.Collections"
 import "android.provider.Settings"
 import "android.net.Uri"
-import "android.content.pm.PackageManager"
-import "android.graphics.drawable.ColorDrawable"
-import "android.graphics.drawable.GradientDrawable"
+import "android.content.Context"
 
--- IMPORTANTS : On charge tes fichiers UI ici
-import "layout"  -- Ton layout principal
-import "min"     -- Ton menu flottant (amsmlay)
+-- ================= CONFIG & INSTALLATION =================
+local BIN_SERVER = "server"
+local BIN_CRYPT = "crypt"
+local PATH_SERVER = activity.getFilesDir().getPath().."/"..BIN_SERVER
+local PATH_CRYPT = activity.getFilesDir().getPath().."/"..BIN_CRYPT
 
--- ===========================
--- 1. CONFIGURATION PRINCIPALE
--- ===========================
-activity.setTitle("")
-activity.setTheme(R.AndLua1)
-activity.setContentView(loadlayout(layout))
-
-if Build.VERSION.SDK_INT >= 21 then
-  activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS).setStatusBarColor(0xFF000000);
+function installBinaries()
+  local function cp(name, path)
+    local src = activity.getLuaDir().."/"..name
+    os.execute("cp "..src.." "..path)
+    os.execute("chmod 755 "..path)
+  end
+  cp(BIN_SERVER, PATH_SERVER)
+  cp(BIN_CRYPT, PATH_CRYPT)
 end
-activity.ActionBar.setBackgroundDrawable(ColorDrawable(0xFF000000))
+installBinaries()
 
--- ===========================
--- 2. ANIMATION TEXTE
--- ===========================
-Update_UI=function(str)
-  if t1 then t1.Text=str end
-end
-
-Start=function(str)
-  require"import"
-  function slg(str)
-    return(utf8.len(str))
-  end
-  function sgg(s,i,j)
-    i,j=tonumber(i),tonumber(j)
-    i=utf8.offset(s,i)
-    j=((j or -1)==-1 and -1) or
-    utf8.offset(s,j-1)+1
-    return string.sub(s,i,j)
-  end
-  for i=1,slg(str) do
-    call("Update_UI",sgg(str,1,i).."|")
-    Thread.sleep(200)
-  end
-  while true do
-    call("Update_UI",sgg(str,1,i).."|")
-    Thread.sleep(400)
-    call("Update_UI",sgg(str,1,i).."")
-    Thread.sleep(400)
-  end
-end
-
-thread(Start," 01010 connected ... Hello There its me @KGAMI5 from boost3000.fr")
-
-
--- ===========================
--- 3. GESTION FENÊTRE FLOTTANTE
--- ===========================
-do
-  amsm7abdo=activity.getSystemService(Context.WINDOW_SERVICE)
-  HasFocus=false
-  amsmParam =WindowManager.LayoutParams()
-  amsmParam.type =WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-  amsmParam.format =PixelFormat.RGBA_8888
-  amsmParam.flags=WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-  amsmParam.gravity = Gravity.CENTER
-  amsmParam.x = 0
-  amsmParam.y = 0
-  amsmParam.width =WindowManager.LayoutParams.WRAP_CONTENT
-  amsmParam.height =WindowManager.LayoutParams.WRAP_CONTENT
-  
-  if Build.VERSION.SDK_INT >= 23 and not Settings.canDrawOverlays(activity) then
-    print("Permission requise")
-    intent=Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-    activity.startActivityForResult(intent, 100)
-  else
-    if amsmlay then
-        amsm7min=loadlayout(amsmlay)
-    else
-        -- Au cas où min.lua est vide, on crée un bouton de secours pour éviter le crash
-        amsm7min = loadlayout({
-            LinearLayout,
-            {TextView, text="ERROR", textColor="red"}
-        })
+-- ================= UTILITAIRES =================
+function getIP()
+  try
+    local interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
+    for i = 0, interfaces.size() - 1 do
+      local intf = interfaces.get(i)
+      local addrs = Collections.list(intf.getInetAddresses())
+      for j = 0, addrs.size() - 1 do
+        local addr = addrs.get(j)
+        if not addr.isLoopbackAddress() and addr.getHostAddress():find(":") == nil then
+          return addr.getHostAddress()
+        end
+      end
     end
-  end
+  catch(e) end
+  return "OFFLINE"
 end
 
--- ===========================
--- 4. STYLES BOUTONS
--- ===========================
-function CircleButtonA(view,InsideColor,radiu,InsideColor1)
-  drawable = GradientDrawable()
-  drawable.setShape(GradientDrawable.RECTANGLE)
-  drawable.setCornerRadii({radiu, radiu, radiu, radiu, radiu, radiu, radiu, radiu})
-  drawable.setColor(InsideColor)
-  drawable.setStroke(9, InsideColor1)
-  view.setBackgroundDrawable(drawable)
-end
+-- ================= INTERFACE PRINCIPALE =================
+activity.setTitle("Shadow Panel Launcher")
+activity.setTheme(android.R.style.Theme_Material_Light)
 
-if mLinearLayout1 then CircleButtonA(mLinearLayout1,0xFFBD0000,200,0xFFFFFFFF) end
-if mLinearLayout2 then CircleButtonA(mLinearLayout2,0xFFFF0000,100,0xFFFFFFFF) end
-if Cross then CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF) end
-
-
--- ===========================
--- 5. VÉRIFICATION DATE
--- ===========================
-Date = "20260120"
-date = os.date("%Y%m%d")
-if date >= Date then
-  dialog=AlertDialog.Builder(this)
-  .setTitle("⚠️ EXPIRED ⚠️")
-  .setCancelable(false)
-  .setMessage("UPDATE IS REQUIRED")
-  .setPositiveButton("EXIT",{onClick=function(v) os.exit() end})
-  .show()
-  return
-end
-
-
--- ===========================
--- 6. FONCTION D'INJECTION (ANTI-CRASH & MULTI-CHEMINS)
--- ===========================
-function AMSMEF(fileName)
-  local path = activity.getLuaDir(fileName)
-  
-  -- 1. Donner les droits au fichier
-  os.execute("chmod 777 '" .. path .. "'")
-
-  -- 2. Liste des chemins possibles pour 'su'
-  -- L'erreur venait du fait que le système ne trouvait pas "su" tout court
-  local su_candidates = {
-      "su",               -- Standard
-      "/system/bin/su",   -- Souvent utilisé dans les VM
-      "/system/xbin/su",  -- Ancien standard root
-      "/sbin/su",         -- Magisk systemless
-      "sh"                -- Dernier recours (si pas root mais shell suffisant)
+main_layout = {
+  LinearLayout,
+  orientation="vertical",
+  gravity="center",
+  layout_width="fill",
+  layout_height="fill",
+  {
+    Button,
+    text="ACTIVER SHADOW PANEL",
+    id="btn_launch",
+    padding="30dp",
+    textSize="18sp",
+    backgroundColor="#FF222222",
+    textColor="#FFFFFFFF"
+  },
+  {
+    TextView,
+    text="Nécessite la permission de superposition",
+    layout_marginTop="20dp"
   }
+}
+activity.setContentView(loadlayout(main_layout))
 
-  local success = false
+-- ================= PANEL FLOTTANT (OVERLAY) =================
+local wm = activity.getSystemService(Context.WINDOW_SERVICE)
+local p = WindowManager.LayoutParams()
+
+p.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+p.format = PixelFormat.RGBA_8888
+p.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE 
+p.gravity = Gravity.TOP | Gravity.CENTER
+p.width = 600 -- Assez large
+p.height = WindowManager.LayoutParams.WRAP_CONTENT
+p.x = 0
+p.y = 100
+
+-- Design du Panel
+local panel_layout = {
+  LinearLayout,
+  orientation="vertical",
+  layout_width="fill",
+  background="#EE000000", -- Noir transparent
+  padding="2dp",
+  {
+    LinearLayout, -- Header (Barre de titre)
+    layout_width="fill",
+    background="#FF004400",
+    padding="5dp",
+    gravity="center_vertical",
+    {
+      TextView,
+      text="SHADOW PANEL",
+      textColor="#FFFFFF",
+      textSize="12sp",
+      textStyle="bold",
+      layout_weight=1
+    },
+    {
+      TextView,
+      text="X",
+      id="btn_close_panel",
+      textColor="#FF0000",
+      textSize="14sp",
+      padding="5dp"
+    }
+  },
+  {
+    LinearLayout, -- Menu Onglets
+    layout_width="fill",
+    {
+      Button,
+      text="GHOST SERVER",
+      id="tab_server",
+      layout_weight=1,
+      textSize="10sp",
+      backgroundColor="#333333"
+    },
+    {
+      Button,
+      text="CRYPTO",
+      id="tab_crypt",
+      layout_weight=1,
+      textSize="10sp",
+      backgroundColor="#333333"
+    }
+  },
+  {
+    LinearLayout, -- Contenu SERVER
+    id="layout_server",
+    orientation="vertical",
+    layout_width="fill",
+    padding="10dp",
+    visibility=View.VISIBLE,
+    {
+      TextView,
+      text="Statut: OFFLINE",
+      id="txt_status",
+      textColor="#FF555555",
+      gravity="center"
+    },
+    {
+      TextView,
+      text="IP: ...",
+      id="txt_ip",
+      textColor="#FFFFFFFF",
+      gravity="center",
+      textSize="16sp",
+      padding="10dp"
+    },
+    {
+      Button,
+      text="START SERVER",
+      id="btn_server_action",
+      textColor="#00FF00"
+    }
+  },
+  {
+    LinearLayout, -- Contenu CRYPTO
+    id="layout_crypt",
+    orientation="vertical",
+    layout_width="fill",
+    padding="10dp",
+    visibility=View.GONE, -- Caché par défaut
+    {
+      EditText,
+      id="input_text",
+      hint="Texte à chiffrer...",
+      textColor="#FFFFFF",
+      hintTextColor="#888888"
+    },
+    {
+      LinearLayout,
+      layout_width="fill",
+      {
+        Button,
+        text="ENCRYPT",
+        id="btn_enc",
+        layout_weight=1
+      },
+      {
+        Button,
+        text="DECRYPT",
+        id="btn_dec",
+        layout_weight=1
+      }
+    },
+    {
+      EditText,
+      id="output_text",
+      hint="Résultat...",
+      textColor="#00FF00",
+      background="#111111"
+    }
+  }
+}
+
+local panelView = loadlayout(panel_layout)
+local isPanelOpen = false
+local serverThreadID = -1
+
+-- ================= LOGIQUE DES ONGLETS =================
+tab_server.onClick = function()
+  layout_server.setVisibility(View.VISIBLE)
+  layout_crypt.setVisibility(View.GONE)
+end
+
+tab_crypt.onClick = function()
+  layout_server.setVisibility(View.GONE)
+  layout_crypt.setVisibility(View.VISIBLE)
   
-  -- 3. On teste les chemins un par un
-  for i, binary in ipairs(su_candidates) do
-      if success then break end -- Si ça a marché, on arrête
-      
-      -- Commande : binaire -c "commande"
-      -- On ajoute nohup et redirection erreur
-      local cmd_string = binary .. " -c 'nohup \"" .. path .. "\" > /dev/null 2>&1 &'"
-      
-      -- Si c'est juste "sh", on lance sans le "-c" complexe parfois
-      if binary == "sh" then
-         cmd_string = "nohup \"" .. path .. "\" > /dev/null 2>&1 &"
-      end
+  -- Astuce: Pour pouvoir taper du texte dans l'overlay
+  p.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+  wm.updateViewLayout(panelView, p)
+end
 
-      -- PCALL : C'est la protection magique.
-      -- Si Runtime.exec plante, ça ne fera PAS d'écran rouge, ça renvoie juste false.
-      local status, err = pcall(function() 
-          Runtime.getRuntime().exec(cmd_string) 
-      end)
+-- ================= LOGIQUE SERVER =================
+local isServerOn = false
 
-      if status then
-          print("✅ Injection réussie via : " .. binary)
-          success = true
-      else
-          print("⚠️ Echec avec " .. binary)
-      end
-  end
-
-  if success then
-      Toast.makeText(activity, "💉 Injection Lancée", Toast.LENGTH_SHORT).show()
+btn_server_action.onClick = function()
+  if not isServerOn then
+    -- Démarrer
+    txt_ip.Text = "http://" .. getIP() .. ":8080"
+    txt_status.Text = "Statut: ONLINE (Port 8080)"
+    txt_status.setTextColor(0xFF00FF00)
+    btn_server_action.Text = "STOP SERVER"
+    btn_server_action.setTextColor(0xFFFF0000)
+    isServerOn = true
+    
+    -- Lancer le binaire dans un thread
+    serverThreadID = thread(function(path)
+      os.execute(path) -- Ça va bloquer ce thread tant que le serveur tourne
+    end, PATH_SERVER)
+    
   else
-      -- Si tout a échoué
-      Toast.makeText(activity, "❌ Erreur: ROOT introuvable (Error=2)", Toast.LENGTH_LONG).show()
-      
-      -- Tentative désespérée sans su ni sh (directement le fichier)
-      pcall(function() Runtime.getRuntime().exec(path) end)
-  end
-end
-import "com.androlua.util.RootUtil"
-
-function amsm7A
-  if RootUtil.haveRoot() == true then
-    kmn = activity.getLuaDir(A0_24)
-    os.execute("su -c chmod 777 " .. kmn)
-    Runtime.getRuntime().exec("su -c " .. kmn)
-   else
-    kmn = activity.getLuaDir(A0_24)
-    os.execute("chmod 777 " .. kmn)
-    Runtime.getRuntime().exec(" " .. kmn)
+    -- Arrêter (Méthode brutale car non root)
+    -- On ne peut pas facilement tuer le process sans PID, 
+    -- mais on va réinitialiser l'UI et espérer que l'OS nettoie ou on utilisera killall
+    os.execute("killall server") -- Tente de tuer tous les processus nommés "server"
+    
+    txt_status.Text = "Statut: OFFLINE"
+    txt_status.setTextColor(0xFF555555)
+    btn_server_action.Text = "START SERVER"
+    btn_server_action.setTextColor(0xFF00FF00)
+    isServerOn = false
   end
 end
 
---chmod 0760 "dir"777
-
-
-
-function exec(cmd)
-  local p=io.popen(string.format('%s',cmd))
-  local s=p:read("*a")
-  p:close()
-  return s
+-- ================= LOGIQUE CRYPTO =================
+function runCrypt(mode)
+  local txt = input_text.Text
+  if txt == "" then return end
+  
+  -- Appel système au binaire C++
+  -- On met le texte entre guillemets pour gérer les espaces
+  local cmd = PATH_CRYPT .. " " .. mode .. " \"" .. txt .. "\""
+  local handle = io.popen(cmd)
+  local result = handle:read("*a")
+  handle:close()
+  
+  output_text.setText(result)
 end
 
--- ===========================
--- 7. CLIC BOUTON
--- ===========================
-amsm7A=false
-function Cross.onClick()
-  if (amsm7A==false) then
-    amsm7abdo.addView(amsm7min,amsmParam)
-    CircleButtonA(Cross,0xFF009F00,200,0xFFFFFFFF)
-    amsm7A=true
-    
-    -- Lancer l'injecteur
-    AMSMEF("KGAMI5/ckxkdkkskkhgkkdkskkv")
+btn_enc.onClick = function() runCrypt("enc") end
+btn_dec.onClick = function() runCrypt("dec") end
 
-   else
-    amsm7abdo.removeView(amsm7min)
-    CircleButtonA(Cross,0xFFBD0000,200,0xFFFFFFFF)
-    amsm7A=false
-    
-    -- Arrêter l'injecteur (Safe kill)
-    local kill_cmds = {"su -c pkill -f ckxkdkkskkhgkkdkskkv", "pkill -f ckxkdkkskkhgkkdkskkv"}
-    for _, cmd in ipairs(kill_cmds) do
-        pcall(function() Runtime.getRuntime().exec(cmd) end)
+-- ================= GESTION DU PANEL =================
+btn_launch.onClick = function()
+  if Build.VERSION.SDK_INT >= 23 and not Settings.canDrawOverlays(activity) then
+    local intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:"..activity.getPackageName()))
+    activity.startActivity(intent)
+    return
+  end
+
+  if not isPanelOpen then
+    wm.addView(panelView, p)
+    isPanelOpen = true
+  end
+end
+
+btn_close_panel.onClick = function()
+  if isPanelOpen then
+    wm.removeView(panelView)
+    isPanelOpen = false
+    -- Si on ferme le panel, on tue le serveur par sécurité
+    if isServerOn then
+        os.execute("killall server")
+        isServerOn = false
+        btn_server_action.Text = "START SERVER"
     end
-    
-    Toast.makeText(activity,"ESP OFF 🔴", Toast.LENGTH_SHORT).show()
   end
 end
