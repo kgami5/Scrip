@@ -104,7 +104,7 @@ main_layout = {
   }
 }
 
-activity.setContentView(loadlayout(main_layout))
+--activity.setContentView(loadlayout(main_layout))
 
 -- Application du style au bouton principal
 styleView(btn_launch, 0xFF1A1A1A, 50, 0xFF00FF00, 3)
