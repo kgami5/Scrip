@@ -10,7 +10,7 @@ import "java.util.Collections"
 import "android.provider.Settings"
 import "android.net.Uri"
 import "android.content.Context"
-
+import "android.content.Intent"
 -- ================= CONFIG & INSTALLATION =================
 local BIN_SERVER = "KGAMI5/kgoslgjsjzbriguetdudh"
 local BIN_CRYPT = "KGAMI5/gkglkdkdkkvkkdkdkc"
