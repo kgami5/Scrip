@@ -19,19 +19,23 @@ local PATH_CRYPT = activity.getFilesDir().getPath().."/"..BIN_CRYPT
 
 function installBinaries()
   local function cp(name, path)
+    -- On vérifie si le fichier source existe avant de copier
     local src = activity.getLuaDir().."/"..name
-    os.execute("cp "..src.." "..path)
-    os.execute("chmod 755 "..path)
+    local f = io.open(src, "r")
+    if f then
+        f:close()
+        os.execute("cp "..src.." "..path)
+        os.execute("chmod 755 "..path)
+    end
   end
   cp(BIN_SERVER, PATH_SERVER)
   cp(BIN_CRYPT, PATH_CRYPT)
 end
 installBinaries()
 
--- ================= UTILITAIRES =================
--- ================= UTILITAIRES =================
+-- ================= UTILITAIRES (CORRIGÉ) =================
 function getIP()
-  -- On utilise pcall (protected call) au lieu de try/catch pour éviter les erreurs
+  -- Utilisation de pcall au lieu de try/catch pour éviter l'erreur de syntaxe
   local status, result = pcall(function()
       local interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
       for i = 0, interfaces.size() - 1 do
@@ -39,7 +43,6 @@ function getIP()
         local addrs = Collections.list(intf.getInetAddresses())
         for j = 0, addrs.size() - 1 do
           local addr = addrs.get(j)
-          -- On cherche une IP qui n'est pas locale (127.0.0.1) et pas IPv6 (:)
           if not addr.isLoopbackAddress() and addr.getHostAddress():find(":") == nil then
             return addr.getHostAddress()
           end
@@ -51,7 +54,7 @@ function getIP()
   if status and result then
     return result
   else
-    return "OFFLINE" -- En cas d'erreur ou si pas trouvé
+    return "OFFLINE"
   end
 end
 
@@ -76,7 +79,7 @@ main_layout = {
   },
   {
     TextView,
-    text="Nécessite la permission de superposition",
+    text="Si rien ne s'affiche, vérifiez les permissions Overlay",
     layout_marginTop="20dp"
   }
 }
@@ -90,20 +93,19 @@ p.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
 p.format = PixelFormat.RGBA_8888
 p.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE 
 p.gravity = Gravity.TOP | Gravity.CENTER
-p.width = 600 -- Assez large
+p.width = 600
 p.height = WindowManager.LayoutParams.WRAP_CONTENT
 p.x = 0
 p.y = 100
 
--- Design du Panel
 local panel_layout = {
   LinearLayout,
   orientation="vertical",
   layout_width="fill",
-  background="#EE000000", -- Noir transparent
+  background="#EE000000",
   padding="2dp",
   {
-    LinearLayout, -- Header (Barre de titre)
+    LinearLayout, 
     layout_width="fill",
     background="#FF004400",
     padding="5dp",
@@ -126,7 +128,7 @@ local panel_layout = {
     }
   },
   {
-    LinearLayout, -- Menu Onglets
+    LinearLayout, 
     layout_width="fill",
     {
       Button,
@@ -146,7 +148,7 @@ local panel_layout = {
     }
   },
   {
-    LinearLayout, -- Contenu SERVER
+    LinearLayout,
     id="layout_server",
     orientation="vertical",
     layout_width="fill",
@@ -176,12 +178,12 @@ local panel_layout = {
     }
   },
   {
-    LinearLayout, -- Contenu CRYPTO
+    LinearLayout,
     id="layout_crypt",
     orientation="vertical",
     layout_width="fill",
     padding="10dp",
-    visibility=View.GONE, -- Caché par défaut
+    visibility=View.GONE,
     {
       EditText,
       id="input_text",
@@ -217,9 +219,8 @@ local panel_layout = {
 
 local panelView = loadlayout(panel_layout)
 local isPanelOpen = false
-local serverThreadID = -1
 
--- ================= LOGIQUE DES ONGLETS =================
+-- ================= LOGIQUE =================
 tab_server.onClick = function()
   layout_server.setVisibility(View.VISIBLE)
   layout_crypt.setVisibility(View.GONE)
@@ -228,36 +229,23 @@ end
 tab_crypt.onClick = function()
   layout_server.setVisibility(View.GONE)
   layout_crypt.setVisibility(View.VISIBLE)
-  
-  -- Astuce: Pour pouvoir taper du texte dans l'overlay
   p.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
   wm.updateViewLayout(panelView, p)
 end
 
--- ================= LOGIQUE SERVER =================
 local isServerOn = false
 
 btn_server_action.onClick = function()
   if not isServerOn then
-    -- Démarrer
     txt_ip.Text = "http://" .. getIP() .. ":8080"
     txt_status.Text = "Statut: ONLINE (Port 8080)"
     txt_status.setTextColor(0xFF00FF00)
     btn_server_action.Text = "STOP SERVER"
     btn_server_action.setTextColor(0xFFFF0000)
     isServerOn = true
-    
-    -- Lancer le binaire dans un thread
-    serverThreadID = thread(function(path)
-      os.execute(path) -- Ça va bloquer ce thread tant que le serveur tourne
-    end, PATH_SERVER)
-    
+    thread(function(path) os.execute(path) end, PATH_SERVER)
   else
-    -- Arrêter (Méthode brutale car non root)
-    -- On ne peut pas facilement tuer le process sans PID, 
-    -- mais on va réinitialiser l'UI et espérer que l'OS nettoie ou on utilisera killall
-    os.execute("killall server") -- Tente de tuer tous les processus nommés "server"
-    
+    os.execute("killall server") 
     txt_status.Text = "Statut: OFFLINE"
     txt_status.setTextColor(0xFF555555)
     btn_server_action.Text = "START SERVER"
@@ -266,32 +254,25 @@ btn_server_action.onClick = function()
   end
 end
 
--- ================= LOGIQUE CRYPTO =================
 function runCrypt(mode)
   local txt = input_text.Text
   if txt == "" then return end
-  
-  -- Appel système au binaire C++
-  -- On met le texte entre guillemets pour gérer les espaces
   local cmd = PATH_CRYPT .. " " .. mode .. " \"" .. txt .. "\""
   local handle = io.popen(cmd)
   local result = handle:read("*a")
   handle:close()
-  
   output_text.setText(result)
 end
 
 btn_enc.onClick = function() runCrypt("enc") end
 btn_dec.onClick = function() runCrypt("dec") end
 
--- ================= GESTION DU PANEL =================
 btn_launch.onClick = function()
   if Build.VERSION.SDK_INT >= 23 and not Settings.canDrawOverlays(activity) then
     local intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:"..activity.getPackageName()))
     activity.startActivity(intent)
     return
   end
-
   if not isPanelOpen then
     wm.addView(panelView, p)
     isPanelOpen = true
@@ -302,7 +283,6 @@ btn_close_panel.onClick = function()
   if isPanelOpen then
     wm.removeView(panelView)
     isPanelOpen = false
-    -- Si on ferme le panel, on tue le serveur par sécurité
     if isServerOn then
         os.execute("killall server")
         isServerOn = false
