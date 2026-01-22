@@ -86,12 +86,12 @@ local Config = {
   active = false,
   box_size = 200, 
   offset_x = -52, -- Décalage Viseur
-  scan_range = 70, -- Zone de scan
+  scan_range = 120, -- Zone de scan
   scan_step = 6,
   sensitivity = 1.0, -- Vitesse du mouvement (1.0 = direct)
   speed_ms = 10, -- Vitesse de boucle
   lock_delay = 50, -- 500ms (0.5 secondes) avant que ça bouge
-  recoil_compensation = 10 -- Pixel vers le bas pour le recul
+  recoil_compensation = -1 -- Pixel vers le bas pour le recul
 }
 
 local wmManager = activity.getSystemService(Context.WINDOW_SERVICE)
