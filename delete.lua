@@ -84,15 +84,15 @@ activity.setContentView(loadlayout(mainLayout))
 -- ================= 2. CONFIGURATION =================
 local Config = {
   active = false,
-  box_size = 200,
+  box_size = 2000,
   offset_x = -52, 
   visual_correction_x = -15, -- <<-- AJOUT : Décale le bas de la ligne vers la gauche
-  scan_range = 150, -- <<-- AJOUT : Portée augmentée pour voir plusieurs ennemis
+  scan_range = 1500, -- <<-- AJOUT : Portée augmentée pour voir plusieurs ennemis
   scan_step = 7,
   enemy_separation = 60, -- Distance min pour considérer que c'est un autre ennemi
   sensitivity = 0.0, 
   speed_ms = 20, 
-  lock_delay = 270, 
+  lock_delay = 170, 
   recoil_compensation = 3 
 }
 
