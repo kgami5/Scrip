@@ -90,8 +90,8 @@ local Config = {
   scan_step = 6,
   sensitivity = 1.0, -- Vitesse du mouvement (1.0 = direct)
   speed_ms = 10, -- Vitesse de boucle
-  lock_delay = 500, -- 500ms (0.5 secondes) avant que ça bouge
-  recoil_compensation = 3 -- Pixel vers le bas pour le recul
+  lock_delay = 50, -- 500ms (0.5 secondes) avant que ça bouge
+  recoil_compensation = 10 -- Pixel vers le bas pour le recul
 }
 
 local wmManager = activity.getSystemService(Context.WINDOW_SERVICE)
