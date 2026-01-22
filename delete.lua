@@ -86,11 +86,11 @@ local Config = {
   active = false,
   box_size = 200,
   offset_x = -52, 
-  scan_range = 150, 
+  scan_range = 250, 
   scan_step = 6,
   sensitivity = 1.0, 
   speed_ms = 15, -- Légèrement augmenté pour éviter le lag du dessin
-  lock_delay = 150, -- 500ms environ
+  lock_delay = 350, -- 500ms environ
   recoil_compensation = 3 
 }
 
