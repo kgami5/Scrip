@@ -84,11 +84,11 @@ activity.setContentView(loadlayout(mainLayout))
 -- ================= 2. CONFIGURATION =================
 local Config = {
   active = false,
-  box_size = 200,
+  box_size = 70,
   offset_x = -52, 
   scan_range = 70, 
   scan_step = 6,
-  sensitivity = 100.0, 
+  sensitivity = 0.0, 
   speed_ms = 15, -- Légèrement augmenté pour éviter le lag du dessin
   lock_delay = 350, -- 500ms environ
   recoil_compensation = 3 
