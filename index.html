@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Install App</title>
+<meta name="theme-color" content="#ff3b5c">
+<style>
+html,body{margin:0;padding:0;min-height:100vh;background:transparent;font-family:system-ui,sans-serif}
+#pwa-in{position:fixed;top:max(16px,env(safe-area-inset-top));right:16px;z-index:2147483647;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border:0;border-radius:99px;font:800 13px system-ui;letter-spacing:.02em;color:#fff;cursor:pointer;background:linear-gradient(135deg,#ff5e7c,#ff3b5c);box-shadow:inset 0 2px 1px rgba(255,255,255,.55),inset 0 -4px 8px rgba(70,0,20,.45),0 8px 22px rgba(255,59,92,.5);-webkit-tap-highlight-color:transparent;user-select:none;animation:p 2.4s ease-in-out infinite}
+#pwa-in:active{transform:scale(.94)}#pwa-in svg{width:16px;height:16px;flex-shrink:0}#pwa-in.hide{display:none}
+@keyframes p{50%{box-shadow:inset 0 2px 1px rgba(255,255,255,.55),inset 0 -4px 8px rgba(70,0,20,.45),0 8px 26px rgba(255,59,92,.8)}}
+#pwa-ios-m{position:fixed;inset:0;z-index:2147483647;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);font-family:system-ui}
+#pwa-ios-m.on{display:flex}#pwa-ios-m .c{background:#0d0b1e;color:#f5f5fa;border:1px solid rgba(255,255,255,.14);width:100%;max-width:440px;border-radius:22px 22px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0px));animation:u .25s cubic-bezier(.2,.8,.2,1)}
+@keyframes u{from{transform:translateY(100%)}}#pwa-ios-m h3{margin:0 0 14px;font-size:17px;font-weight:800}#pwa-ios-m p{margin:0 0 10px;font-size:14px;line-height:1.5;opacity:.85}#pwa-ios-m b{color:#ff5e7c}
+#pwa-ios-m button{margin-top:16px;width:100%;padding:13px;border:0;border-radius:12px;background:linear-gradient(135deg,#ff5e7c,#ff3b5c);color:#fff;font:800 15px system-ui;cursor:pointer;box-shadow:inset 0 2px 1px rgba(255,255,255,.5),0 8px 20px rgba(255,59,92,.5)}
+</style>
+</head>
+<body>
+<button id="pwa-in" aria-label="Installer l'application"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Install App</button>
+<div id="pwa-ios-m" role="dialog"><div class="c"><h3>Installer</h3><p>1. <b>Partager</b></p><p>2. <b>Sur l'¨¦cran d'accueil</b></p><p>3. <b>Ajouter</b></p><button type="button">Compris</button></div></div>
+<script>
+(function(){
+'use strict';
+if(window.__pwaBtn)return;window.__pwaBtn=1;
+var b=document.getElementById('pwa-in'),m=document.getElementById('pwa-ios-m');
+function ic(s){var c=document.createElement('canvas');c.width=c.height=s;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,s,s);g.addColorStop(0,'#ff5e7c');g.addColorStop(1,'#ff3b5c');x.fillStyle=g;x.beginPath();var r=s*.22;x.moveTo(r,0);x.arcTo(s,0,s,r);x.arcTo(s,s,s-r,s);x.arcTo(0,s,0,s-r);x.arcTo(0,0,r,0);x.closePath();x.fill();x.fillStyle='#fff';x.font='900 '+Math.round(s*.46)+'px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText('B3',s/2,s/2+s*.03);return c.toDataURL()}
+var i1=ic(192),i5=ic(512);
+if(!document.querySelector('link[rel=manifest]')){var l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify({name:document.title||'Boost3000',short_name:'B3',start_url:'/',scope:'/',display:'standalone',orientation:'portrait',background_color:'#07070d',theme_color:'#ff3b5c',icons:[{src:i1,sizes:'192x192',type:'image/png',purpose:'any'},{src:i1,sizes:'192x192',type:'image/png',purpose:'maskable'},{src:i5,sizes:'512x512',type:'image/png',purpose:'any'},{src:i5,sizes:'512x512',type:'image/png',purpose:'maskable'}]})],{type:'application/json'}));document.head.appendChild(l)}
+var SW="self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request)));";
+if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)))window.addEventListener('load',function(){navigator.serviceWorker.register(URL.createObjectURL(new Blob([SW],{type:'application/javascript'})),{scope:'/'}).catch(function(){})});
+var dp=null,iOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),sa=matchMedia('(display-mode:standalone)').matches||navigator.standalone===true;
+if(sa)b.classList.add('hide');
+addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;b.classList.remove('hide')});
+b.addEventListener('click',async function(e){e.stopPropagation();if(iOS&&!dp){m.classList.add('on');return}if(dp){dp.prompt();try{await dp.userChoice}catch(x){}dp=null;b.classList.add('hide');return}alert("Menu navigateur ¡ú Installer / Ajouter ¨¤ l'¨¦cran d'accueil")});
+m.querySelector('button').addEventListener('click',function(){m.classList.remove('on')});
+m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('on')});
+addEventListener('appinstalled',function(){b.classList.add('hide');dp=null});
+})();
+</script>
+</body>
+</html>
