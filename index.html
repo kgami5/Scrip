@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mon Panel</title>
+    <meta name="theme-color" content="#0d6efd">
+
+    <!-- Manifeste (rempli dynamiquement par le script plus bas) -->
+    <link id="pwa-manifest" rel="manifest">
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==">
+
+    <style>
+        /* ---------- Bouton flottant d'installation ---------- */
+        #pwa-install-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 99999;
+            display: none; /* caché par défaut, affiché via JS */
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #0d6efd;
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(13, 110, 253, 0.4);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #pwa-install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13, 110, 253, 0.5);
+        }
+        #pwa-install-btn:active {
+            transform: scale(0.96);
+        }
+        #pwa-install-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* ---------- Modal d'instructions iOS ---------- */
+        #pwa-ios-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        #pwa-ios-modal.open { display: flex; }
+        #pwa-ios-modal .card {
+            background: #fff;
+            color: #111;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+            animation: pwaSlideUp 0.25s ease;
+        }
+        @keyframes pwaSlideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+        }
+        #pwa-ios-modal h3 { margin: 0 0 12px; font-size: 17px; }
+        #pwa-ios-modal p  { margin: 0 0 8px; font-size: 14px; line-height: 1.4; }
+        #pwa-ios-modal .close {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: #0d6efd;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ⬇️ Votre contenu existant ⬇️ -->
+    <h1>Bienvenue sur mon Panel</h1>
+    <!-- ⬆️ Votre contenu existant ⬆️ -->
+
+
+    <!-- ============ BOUTON FLOTTANT ============ -->
+    <button id="pwa-install-btn" type="button" aria-label="Installer l'application">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"/>
+            <path d="M7 10l5 5 5-5"/>
+            <path d="M5 21h14"/>
+        </svg>
+        Install App
+    </button>
+
+    <!-- ============ MODAL iOS ============ -->
+    <div id="pwa-ios-modal">
+        <div class="card">
+            <h3>Installer l'application</h3>
+            <p>1. Appuyez sur le bouton <strong>Partager</strong> <span style="font-size:16px;">􀈂</span> de Safari (en bas de l'écran).</p>
+            <p>2. Faites défiler et choisissez <strong>« Sur l'écran d'accueil »</strong>.</p>
+            <p>3. Appuyez sur <strong>« Ajouter »</strong>.</p>
+            <button class="close" type="button">Compris</button>
+        </div>
+    </div>
+
+
+    <script>
+    (function () {
+        'use strict';
+
+        /* =========================================================
+           1. MANIFESTE PWA (généré dynamiquement)
+           ========================================================= */
+        const ICON_192 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+        const ICON_512 = ICON_192; // ⚠️ remplacez par une vraie icône 512x512
+
+        const manifestData = {
+            name: document.title || "Mon Panel",
+            short_name: "Panel",
+            start_url: "/",
+            scope: "/",
+            display: "standalone",
+            orientation: "portrait",
+            background_color: "#ffffff",
+            theme_color: "#0d6efd",
+            icons: [
+                { src: ICON_192, sizes: "192x192", type: "image/png", purpose: "any" },
+                { src: ICON_512, sizes: "512x512", type: "image/png", purpose: "any" }
+            ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: "application/json" });
+        document.getElementById("pwa-manifest").href = URL.createObjectURL(manifestBlob);
+
+
+        /* =========================================================
+           2. SERVICE WORKER (inline via Blob URL)
+           ========================================================= */
+        const swCode = `
+            self.addEventListener('install',  () => self.skipWaiting());
+            self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+            self.addEventListener('fetch',    (e) => e.respondWith(fetch(e.request)));
+        `;
+
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                const swBlob = new Blob([swCode], { type: "application/javascript" });
+                const swURL  = URL.createObjectURL(swBlob);
+                navigator.serviceWorker
+                    .register(swURL, { scope: "/" })
+                    .then(reg => console.log("[PWA] Service Worker OK :", reg.scope))
+                    .catch(err => console.warn("[PWA] Service Worker KO :", err));
+            });
+        }
+
+
+        /* =========================================================
+           3. BOUTON D'INSTALLATION
+           ========================================================= */
+        const installBtn = document.getElementById("pwa-install-btn");
+        const iosModal   = document.getElementById("pwa-ios-modal");
+        let deferredPrompt = null;
+
+        // Détection iOS (Safari ne déclenche pas beforeinstallprompt)
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        const isInStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+                               window.navigator.standalone === true;
+
+        // --- Android / Chrome / Edge : API standard ---
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = "inline-flex";
+        });
+
+        installBtn.addEventListener("click", async () => {
+            // Cas iOS → afficher la modal d'instructions
+            if (isIOS && !deferredPrompt) {
+                iosModal.classList.add("open");
+                return;
+            }
+            // Cas Android/Chrome → déclencher le prompt natif
+            if (!deferredPrompt) return;
+
+            installBtn.style.display = "none";
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log("[PWA] Choix utilisateur :", outcome);
+            deferredPrompt = null;
+        });
+
+        // --- iOS : afficher le bouton manuellement si Safari et pas encore installé ---
+        if (isIOS && !isInStandalone) {
+            installBtn.style.display = "inline-flex";
+        }
+
+        // Fermeture de la modal iOS
+        iosModal.querySelector(".close").addEventListener("click", () => {
+            iosModal.classList.remove("open");
+        });
+        iosModal.addEventListener("click", (e) => {
+            if (e.target === iosModal) iosModal.classList.remove("open");
+        });
+
+        // --- Masquer le bouton une fois l'app installée ---
+        window.addEventListener("appinstalled", () => {
+            installBtn.style.display = "none";
+            deferredPrompt = null;
+            console.log("[PWA] Application installée ✅");
+        });
+    })();
+    </script>
+</body>
+</html>
