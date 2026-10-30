@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0d6efd">
+    <title>Mon Application</title>
+
+    <style>
+        /* ============================================================
+           BOUTON FLOTTANT PWA
+           ============================================================ */
+        #pwa-install-btn {
+            position: fixed !important;
+            top: max(16px, env(safe-area-inset-top)) !important;
+            right: 16px !important;
+            z-index: 2147483647 !important;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(13, 110, 253, 0.45);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        #pwa-install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13, 110, 253, 0.55);
+        }
+        #pwa-install-btn:active { transform: scale(0.96); }
+        #pwa-install-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        /* ============================================================
+           MODAL iOS
+           ============================================================ */
+        #pwa-ios-modal {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 2147483647 !important;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.55);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            backdrop-filter: blur(2px);
+        }
+        #pwa-ios-modal.pwa-open { display: flex; }
+        #pwa-ios-modal .pwa-card {
+            background: #fff;
+            color: #111;
+            width: 100%;
+            max-width: 440px;
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+            animation: pwaSlideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15);
+        }
+        @keyframes pwaSlideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+        }
+        #pwa-ios-modal h3 { margin: 0 0 14px; font-size: 17px; font-weight: 700; }
+        #pwa-ios-modal p  { margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: #333; }
+        #pwa-ios-modal .pwa-close {
+            margin-top: 16px;
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            background: #0d6efd;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+         BOUTON FLOTTANT PWA (UNIQUEMENT ?A)
+         ============================================================ -->
+    <button id="pwa-install-btn" type="button" aria-label="Installer l'application">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"/>
+            <path d="M7 10l5 5 5-5"/>
+            <path d="M5 21h14"/>
+        </svg>
+        Install App
+    </button>
+
+    <div id="pwa-ios-modal" role="dialog" aria-modal="true" aria-labelledby="pwa-ios-title">
+        <div class="pwa-card">
+            <h3 id="pwa-ios-title">Installer l'application</h3>
+            <p>1. Appuyez sur le bouton <strong>Partager</strong> de Safari.</p>
+            <p>2. Choisissez <strong>? Sur l'¨¦cran d'accueil ?</strong>.</p>
+            <p>3. Appuyez sur <strong>? Ajouter ?</strong>.</p>
+            <button class="pwa-close" type="button">Compris</button>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        /* ---------- 1. Ic?nes (?? remplacez par vos vraies ic?nes) ---------- */
+        const ICON_192 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+        const ICON_512 = ICON_192;
+
+        /* ---------- 2. Manifeste PWA ---------- */
+        const manifestData = {
+            name: document.title || "Mon Application",
+            short_name: (document.title || "App").slice(0, 12),
+            start_url: "/",
+            scope: "/",
+            display: "standalone",
+            orientation: "portrait",
+            background_color: "#ffffff",
+            theme_color: "#0d6efd",
+            icons: [
+                { src: ICON_192, sizes: "192x192", type: "image/png", purpose: "any" },
+                { src: ICON_192, sizes: "192x192", type: "image/png", purpose: "maskable" },
+                { src: ICON_512, sizes: "512x512", type: "image/png", purpose: "any" },
+                { src: ICON_512, sizes: "512x512", type: "image/png", purpose: "maskable" }
+            ]
+        };
+
+        if (!document.querySelector('link[rel="manifest"]')) {
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: "application/json" });
+            const manifestLink = document.createElement("link");
+            manifestLink.rel = "manifest";
+            manifestLink.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(manifestLink);
+        }
+
+        /* ---------- 3. Service Worker inline ---------- */
+        const swCode = `
+            self.addEventListener('install',  () => self.skipWaiting());
+            self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+            self.addEventListener('fetch',    (e) => e.respondWith(fetch(e.request)));
+        `;
+
+        if ("serviceWorker" in navigator) {
+            if (location.protocol === "https:" || location.hostname === "localhost") {
+                window.addEventListener("load", () => {
+                    const swBlob = new Blob([swCode], { type: "application/javascript" });
+                    const swURL  = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker
+                        .register(swURL, { scope: "/" })
+                        .then(reg => console.log("[PWA] Service Worker OK ¡ú", reg.scope))
+                        .catch(err => console.warn("[PWA] Service Worker KO ¡ú", err));
+                });
+            } else {
+                console.warn("[PWA] HTTPS requis pour activer le Service Worker.");
+            }
+        }
+
+        /* ---------- 4. Bouton d'installation ---------- */
+        const btn   = document.getElementById("pwa-install-btn");
+        const modal = document.getElementById("pwa-ios-modal");
+        let deferredPrompt = null;
+
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+                             window.navigator.standalone === true;
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            btn.style.display = "inline-flex";
+        });
+
+        btn.addEventListener("click", async () => {
+            if (isIOS && !deferredPrompt) {
+                modal.classList.add("pwa-open");
+                return;
+            }
+            if (!deferredPrompt) return;
+            btn.style.display = "none";
+            deferredPrompt.prompt();
+            try {
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log("[PWA] Choix utilisateur :", outcome);
+            } catch (err) {
+                console.warn("[PWA] Erreur prompt :", err);
+            }
+            deferredPrompt = null;
+        });
+
+        if (isIOS && !isStandalone) {
+            btn.style.display = "inline-flex";
+        }
+
+        const closeModal = () => modal.classList.remove("pwa-open");
+        modal.querySelector(".pwa-close").addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+        window.addEventListener("appinstalled", () => {
+            btn.style.display = "none";
+            deferredPrompt = null;
+            console.log("[PWA] Application install¨¦e ?");
+        });
+    })();
+    </script>
+</body>
+</html>
