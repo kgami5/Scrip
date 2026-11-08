@@ -1,0 +1,8 @@
+{
+  "title": "AimBuddy General",
+  "description": "Finds players in Android and PC shooters, first and third person, and leaves out your own character.",
+  "author": "AimBuddy",
+  "version": 2,
+  "roles": ["body", "head", "ignore"],
+  "inputSize": 256
+}
